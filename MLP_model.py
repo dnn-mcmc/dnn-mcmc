@@ -217,35 +217,59 @@ class StochasticMLP(Model):
 
         return final_labels
 
-    #def target_log_prob_wrapped(self, current_state):
+    def target_log_prob2(self, x, h, y):
 
+        h_current = tf.split(h_current, self.hidden_layer_sizes, axis = 1)
+        h_previous = [x] + h_current[:-1]
+        
+        log_prob = 0.
+        
+        for i, (cv, pv, layer) in enumerate(
+            zip(h_current, h_previous, self.fc_layers)):
+            
+            ce = tf.nn.sigmoid_cross_entropy_with_logits(
+                labels=cv, logits=layer(pv))
+            
+            log_prob += tf.reduce_sum(ce, axis = -1)
+            
+        log_prob += tf.nn.sparse_softmax_cross_entropy_with_logits(
+            labels=tf.cast(y, tf.int32), logits=self.output_layer(h_current[-1]))
+            
+        return log_prob
 
     # new proposing-state method with HamiltonianMonteCarlo
     def propose_new_state_hamiltoniam(self, x, h, y):
         
-        # Initialize the HMC transition kernel.
-        num_results = 1 # we only take one step
-        num_burnin_steps = int(1e3)
-        adaptive_hmc = tfp.mcmc.SimpleStepSizeAdaptation(
-            tfp.mcmc.HamiltonianMonteCarlo(
-                target_log_prob_fn = lambda h: self.target_log_prob(x, h, y),
-                num_leapfrog_steps = 3,
-                step_size = 1.),
-            num_adaptation_steps=int(num_burnin_steps * 0.8))
+
+        # define the target log prob funtion
+        def tlp(*args):
+            return self.target_log_prob2(x, args, y)
+        
+        # initialize the HMC transition kernel
+        adaptive_hmc = tfp.mcmc.SimpleStepSizeAdaptation(tfp.mcmc.HamiltonianMonteCarlo(
+            target_log_prob_fn = tlp,
+            num_leapfrog_steps = 10,
+            step_size = pow(1000, -1/4)),
+            num_adaptation_steps=int(1000 * 0.8))
 
         # build current state
         h_current = [h['h%i_values' % i] for i in range(len(self.fc_layers))]
-        h_current = [tf.cast(h_i, dtype=tf.float32) for h_i in h_current] # may need to flatten
+        h_current = tf.concat[h_current[0], h_current[1], axis = 1]
+        h_current = [tf.cast(h_i, dtype=tf.float32) for h_i in h_current]
 
         # run the chain
-        samples, is_accepted = tfp.mcmc.sample_chain(
+        num_results = 5
+        num_burnin_steps = 1000
+
+        samples = tfp.mcmc.sample_chain(
             num_results = num_results,
             num_burnin_steps = num_burnin_steps,
             current_state = h_current, # may need to be reshaped
             kernel = adaptive_hmc,
-            trace_fn = lambda _, pkr: pkr.inner_results.is_accepted)
+            trace_fn = None)
 
         samples_mean = tf.reduce_mean(samples)
+        return(samples_mean)
 
         # main time costing step: propose_new_state & accept/reject
         
