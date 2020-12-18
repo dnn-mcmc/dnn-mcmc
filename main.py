@@ -10,39 +10,46 @@ import time
 from MLP_model import StochasticMLP
 
 # Load MNIST
-(x_dev, y_dev), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
+(x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
 
 # Select binary data
 label_sub = [0,1]
-x_dev_sub = [image for image, label in zip(x_dev, y_dev) if label in label_sub]
-y_dev_sub = [label for image, label in zip(x_dev, y_dev) if label in label_sub]
-x_test_sub = [image for image, label in zip(x_test, y_test) if label in label_sub]
-y_test_sub = [label for image, label in zip(x_test, y_test) if label in label_sub]
+x_train_sub = [x for x, y in zip(x_train, y_train) if y in label_sub]
+y_train_sub = [y for y in y_train if y in label_sub]
+x_test_sub = [x for x, y in zip(x_test, y_test) if y in label_sub]
+y_test_sub = [y for y in y_test if y in label_sub]
 
 
-print('There are', len(x_dev_sub), 'training images.')
+print('There are', len(x_train_sub), 'training images.')
 print('There are', len(x_test_sub), 'test images.')
 
-train_ds = tf.data.Dataset.from_tensor_slices((x_dev_sub, y_dev_sub)).shuffle(10000).batch(32)
+train_ds = tf.data.Dataset.from_tensor_slices((x_train_sub, y_train_sub)).shuffle(10000).batch(32)
 test_ds = tf.data.Dataset.from_tensor_slices((x_test_sub, y_test_sub)).batch(32)
 
 # generate chains 
 model = StochasticMLP(hidden_layer_sizes = [100, 50], n_outputs = 2)
 network = [model.call(images) for images, labels in train_ds]
 
-# chains initialization
-sampling = 1
-for i in range(sampling):
-    
-    print("In %d sampling step" % i)
+# use MH or HMC
+is_hmc = True
+if is_hmc:
+    print("Use HMC sampling method.")
+else:
+    print("Use MH sampling method.")
 
-    #start_time = time.time()
-    h_proposed = [model.propose_new_state(images, net, labels) for (images, labels), net in zip(train_ds, network)]
-    #print("--- propose new state %s seconds ---" % (time.time() - start_time))
+# chains initialization
+sampling = 50
+for i in range(sampling):
+    print("In %d sampling step" % i)
     
     #start_time = time.time()
-    network_new = [model.accept_reject(images, net, net_proposed, labels) 
-                        for (images, labels), net, net_proposed in zip(train_ds, network, h_proposed)]
+    if is_hmc:
+        network_new = [model.propose_new_state_hamiltonian(images, net, labels) for (images, labels), net in zip(train_ds, network)]
+    else:
+        h_proposed = [model.propose_new_state(images, net, labels) for (images, labels), net in zip(train_ds, network)]
+        network_new = [model.accept_reject(images, net, net_proposed, labels) 
+                            for (images, labels), net, net_proposed in zip(train_ds, network, h_proposed)]
+    
     network = network_new
     #print("--- step into new state %s seconds ---" % (time.time() - start_time))
 
@@ -59,9 +66,13 @@ for epoch in range(epochs):
         model.update_weights(images, network[bs], labels, 0.001)
         #print("--- update weights %s seconds ---" % (time.time() - start_time))
 
-        h_proposed = [model.propose_new_state(images, net, labels) for (images, labels), net in zip(train_ds, network)]
-        network_new = [model.accept_reject(images, net, net_proposed, labels) 
-                            for (images, labels), net, net_proposed in zip(train_ds, network, h_proposed)]
+        if is_hmc:
+            network_new = [model.propose_new_state_hamiltonian(images, net, labels) for (images, labels), net in zip(train_ds, network)]
+        else:
+            h_proposed = [model.propose_new_state(images, net, labels) for (images, labels), net in zip(train_ds, network)]
+            network_new = [model.accept_reject(images, net, net_proposed, labels) 
+                                for (images, labels), net, net_proposed in zip(train_ds, network, h_proposed)]
+        
         network = network_new
         #print("--- one batch %s seconds ---" % (time.time() - start_time))
 
@@ -75,4 +86,3 @@ prediction_labels = [model.get_predictions(images) for images, labels in test_ds
 y_pred = sum([list(label) for label in prediction_labels], [])
 acc = accuracy_score(y_test_sub, y_pred)
 print("accuracy = ", acc)
-
