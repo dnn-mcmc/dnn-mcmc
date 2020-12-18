@@ -30,24 +30,26 @@ test_ds = tf.data.Dataset.from_tensor_slices((x_test_sub, y_test_sub)).batch(32)
 model = StochasticMLP(hidden_layer_sizes = [100, 50], n_outputs = 2)
 network = [model.call(images) for images, labels in train_ds]
 
-# test HMC
-hmc = [model.run_chain(images, net, labels) for (images, labels), net in zip(train_ds, network)]
-print(hmc)
+# use MH or HMC
+is_hmc = True
+if is_hmc:
+    print("Use HMC sampling method.")
+else:
+    print("Use MH sampling method.")
 
-'''
 # chains initialization
-sampling = 1
+sampling = 50
 for i in range(sampling):
-    
     print("In %d sampling step" % i)
-
-    #start_time = time.time()
-    h_proposed = [model.propose_new_state(images, net, labels) for (images, labels), net in zip(train_ds, network)]
-    #print("--- propose new state %s seconds ---" % (time.time() - start_time))
     
     #start_time = time.time()
-    network_new = [model.accept_reject(images, net, net_proposed, labels) 
-                        for (images, labels), net, net_proposed in zip(train_ds, network, h_proposed)]
+    if is_hmc:
+        network_new = [model.propose_new_state_hamiltonian(images, net, labels) for (images, labels), net in zip(train_ds, network)]
+    else:
+        h_proposed = [model.propose_new_state(images, net, labels) for (images, labels), net in zip(train_ds, network)]
+        network_new = [model.accept_reject(images, net, net_proposed, labels) 
+                            for (images, labels), net, net_proposed in zip(train_ds, network, h_proposed)]
+    
     network = network_new
     #print("--- step into new state %s seconds ---" % (time.time() - start_time))
 
@@ -64,9 +66,13 @@ for epoch in range(epochs):
         model.update_weights(images, network[bs], labels, 0.001)
         #print("--- update weights %s seconds ---" % (time.time() - start_time))
 
-        h_proposed = [model.propose_new_state(images, net, labels) for (images, labels), net in zip(train_ds, network)]
-        network_new = [model.accept_reject(images, net, net_proposed, labels) 
-                            for (images, labels), net, net_proposed in zip(train_ds, network, h_proposed)]
+        if is_hmc:
+            network_new = [model.propose_new_state_hamiltonian(images, net, labels) for (images, labels), net in zip(train_ds, network)]
+        else:
+            h_proposed = [model.propose_new_state(images, net, labels) for (images, labels), net in zip(train_ds, network)]
+            network_new = [model.accept_reject(images, net, net_proposed, labels) 
+                                for (images, labels), net, net_proposed in zip(train_ds, network, h_proposed)]
+        
         network = network_new
         #print("--- one batch %s seconds ---" % (time.time() - start_time))
 
@@ -80,4 +86,3 @@ prediction_labels = [model.get_predictions(images) for images, labels in test_ds
 y_pred = sum([list(label) for label in prediction_labels], [])
 acc = accuracy_score(y_test_sub, y_pred)
 print("accuracy = ", acc)
-'''

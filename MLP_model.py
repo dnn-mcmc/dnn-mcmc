@@ -18,36 +18,33 @@ class StochasticMLP(Model):
         
         x = Flatten()(x)
         
-        network = {}
+        network = []
         
         for i, layer in enumerate(self.fc_layers):
             
             logits = layer(x)
             x = tfp.distributions.Bernoulli(logits=logits).sample()
-            
-            #network['h%i_logits' % i] = logits
-            network['h%i_values' % i] = x
-            
-        final_logits = self.output_layer(x)
-        #final_predictions = tf.nn.softmax(final_logits)
-        
-        #network['final_logits'] = final_logits
-        #network['final_predictions'] = final_predictions
+            network.append(x)
 
+            #network['h%i_logits' % i] = logits
+            #network['h%i_values' % i] = x
+        
+        final_logits = self.output_layer(x) # initial the weight of output layer
+            
         return network
     
     
     def propose_new_state(self, x, h, y):
         '''returns new proposed h values
         x: inputs
-        h: dictionary of layer values
+        h: list of layer values
         y: labels
-        
         returns h_proposed'''
         
         x = Flatten()(x)
-        
-        h_current = [h['h%i_values' % i] for i in range(len(self.fc_layers))]
+
+        #h_current = [h['h%i_values' % i] for i in range(len(self.fc_layers))]
+        h_current = h
         h_current = [tf.cast(h_i, dtype=tf.float32) for h_i in h_current]
         
         in_layers = self.fc_layers
@@ -57,7 +54,7 @@ class StochasticMLP(Model):
         curr_vals = h_current
         next_vals = h_current[1:] + [y]
         
-        h_new = {}
+        h_new = []
         
         for i, (in_layer, out_layer, pv, cv, nv) in enumerate(
             zip(in_layers, out_layers, prev_vals, curr_vals, next_vals)):
@@ -99,7 +96,8 @@ class StochasticMLP(Model):
         
             prob = prob_1 / (prob_1 + prob_0)
             
-            h_new['h%i_values' % i] = tfp.distributions.Bernoulli(probs=prob).sample()
+            new_layer_state = tfp.distributions.Bernoulli(probs=prob).sample()
+            h_new.append(new_layer_state)
        
         # not sample output labels
         # h_new['labels'] = tf.argmax(
@@ -113,12 +111,12 @@ class StochasticMLP(Model):
         
         x = Flatten()(x)
         
-        h_current = [h['h%i_values' % i] for i in range(len(self.fc_layers))]
+        h_current = h
         h_current = [tf.cast(h_i, dtype=tf.float32) for h_i in h_current]
         
         h_previous = [x] + h_current[:-1]
         
-        log_prob = 0.
+        nlog_prob = 0. # negative log probability
         
         for i, (cv, pv, layer) in enumerate(
             zip(h_current, h_previous, self.fc_layers)):
@@ -126,24 +124,12 @@ class StochasticMLP(Model):
             ce = tf.nn.sigmoid_cross_entropy_with_logits(
                 labels=cv, logits=layer(pv))
             
-            log_prob += tf.reduce_sum(ce, axis = -1)
+            nlog_prob += tf.reduce_sum(ce, axis = -1)
             
-        log_prob += tf.nn.sparse_softmax_cross_entropy_with_logits(
+        nlog_prob += tf.nn.sparse_softmax_cross_entropy_with_logits(
             labels=tf.cast(y, tf.int32), logits=self.output_layer(h_current[-1]))
             
-        return log_prob
-    
-    ### log prob should have shape (batch_size, )
-    
-    ### use this ^^ to determine whether to accept or reject samples
-    ### this is done for each element of the batch, independently
-        
-    ### but then, to update weights, we want tf.reduce_mean(self.target_log_prob(...), axis=0)
-    ### (should be only one axis at this point)
-        
-    ### can use e.g. loss = -1 * tf.reduce_mean(self.target_log_prob(...))
-    ### tf.keras.optimizers.Adam().minimize(lambda: loss, var_list_fn=lambda: model.trainable_weights)
-    
+        return -1 * nlog_prob
     
     def accept_reject(self, x, h, h_p, y):
 
@@ -154,56 +140,77 @@ class StochasticMLP(Model):
         ratio = np.exp(-np.maximum(0, log_prob_prop - log_prob_curr))
         acceptance = tfp.distributions.Bernoulli(probs = ratio).sample()
         
-        h_new = {}
+        h_new = []
         
         for i in range(len(self.fc_layers)):
-            h_new['h%i_values' % i] = h_p['h%i_values' % i] * acceptance[:, np.newaxis] \
-                + h['h%i_values' % i] * (1 - acceptance)[:, np.newaxis]
-        
-        # not necessary to sample output labels
-        #h_new['labels'] = h_p['labels'] * acceptance[:, np.newaxis] + h['labels'] * (1 - acceptance)[:, np.newaxis]
+            #h_new['h%i_values' % i] = h_p['h%i_values' % i] * acceptance[:, np.newaxis] \
+            #    + h['h%i_values' % i] * (1 - acceptance)[:, np.newaxis]
+            acc_layer_state = h_p[i] * acceptance[:, np.newaxis] + h[i] * (1 - acceptance)[:, np.newaxis]
+            h_new.append(acc_layer_state)
         
         return h_new
     
-    # manually update weights (not necessary)
-    '''
-    def weight_update(self, x, h, y, lr):
-        
-        x = Flatten()(x)
-        
-        h_current = [h['h%i_values' % i] for i in range(len(self.fc_layers))]
-        h_current = [tf.cast(h_i, dtype=tf.float32) for h_i in h_current]
-        
-        layers = self.fc_layers + [self.output_layer]
-        
-        prev_vals = [x] + h_current
-        next_vals = h_current + [y]
-        
-        learning_rate = lr
-        for i, (layer, pv, nv) in enumerate(zip(layers, prev_vals, next_vals)):
-            
-            grad = pv.T @ (layer(pv) - nv)
-            batch_grad = np.sum(grad, axis = 0)
-            
-            layer_weights = layer.get_weights()[0]
-            layer_weights -= learning_rate * batch_grad
-            layer.set_weights(layer_weights)
-    '''
-    
     # update weights using tensorflow functions
     def update_weights(self, x, h, y, lr = 0.001):
-        
-        #loss = -1 * tf.reduce_mean(self.target_log_prob(x, h, y))
-        #tf.keras.optimizers.Adam().minimize(lambda: loss, lambda: self.trainable_weights)
         
         optimizer = tf.keras.optimizers.Adam(learning_rate = lr)
         with tf.GradientTape() as tape:
             loss = -1 * tf.reduce_mean(self.target_log_prob(x, h, y))
         
         grads = tape.gradient(loss, self.trainable_weights)
-        #print(grads)
         optimizer.apply_gradients(zip(grads, self.trainable_weights))
+
+    def target_log_prob2(self, x, h, y):
+
+        x = Flatten()(x)
+        h_current = tf.split(h, self.hidden_layer_sizes, axis = 1)
+        h_previous = [x] + h_current[:-1]
+        
+        nlog_prob = 0.
+        
+        for i, (cv, pv, layer) in enumerate(
+            zip(h_current, h_previous, self.fc_layers)):
+            
+            ce = tf.nn.sigmoid_cross_entropy_with_logits(
+                labels=cv, logits=layer(pv))
+            
+            nlog_prob += tf.reduce_sum(ce, axis = -1)
+            
+        nlog_prob += tf.nn.sparse_softmax_cross_entropy_with_logits(
+            labels=tf.cast(y, tf.int32), logits=self.output_layer(h_current[-1]))
+            
+        return -1 * nlog_prob
+
+    # new proposing-state method with HamiltonianMonteCarlo
+    def propose_new_state_hamiltonian(self, x, h, y):
     
+        h_current = h
+        h_current = [tf.cast(h_i, dtype=tf.float32) for h_i in h_current]
+        h_current = tf.concat([h_current[0], h_current[1]], axis=1)
+
+        # initialize the HMC transition kernel
+        adaptive_hmc = tfp.mcmc.SimpleStepSizeAdaptation(tfp.mcmc.HamiltonianMonteCarlo(
+            target_log_prob_fn = lambda v: self.target_log_prob2(x, v, y),
+            num_leapfrog_steps = 2,
+            step_size = pow(1000, -1/4)),
+            num_adaptation_steps=int(10 * 0.8))
+
+        # run the chain (with burn-in)
+        num_results = 1
+        num_burnin_steps = 2
+
+        samples = tfp.mcmc.sample_chain(
+            num_results = num_results,
+            num_burnin_steps = num_burnin_steps,
+            current_state = h_current, # may need to be reshaped
+            kernel = adaptive_hmc,
+            trace_fn = None)
+
+        new_state = tf.math.sign(tf.math.sign(samples[0]) - 1) + 1
+        h_new = tf.split(new_state, self.hidden_layer_sizes, axis = 1)
+
+        return(h_new)
+
     def get_predictions(self, x):
         x = Flatten()(x)
 
@@ -216,69 +223,6 @@ class StochasticMLP(Model):
         final_labels = tf.argmax(tfp.distributions.Bernoulli(logits = final_logits).sample(), axis = 1)
 
         return final_labels
-
-    def target_log_prob2(self, x, h, y):
-
-        h_current = tf.split(h_current, self.hidden_layer_sizes, axis = 1)
-        h_previous = [x] + h_current[:-1]
-        
-        log_prob = 0.
-        
-        for i, (cv, pv, layer) in enumerate(
-            zip(h_current, h_previous, self.fc_layers)):
-            
-            ce = tf.nn.sigmoid_cross_entropy_with_logits(
-                labels=cv, logits=layer(pv))
-            
-            log_prob += tf.reduce_sum(ce, axis = -1)
-            
-        log_prob += tf.nn.sparse_softmax_cross_entropy_with_logits(
-            labels=tf.cast(y, tf.int32), logits=self.output_layer(h_current[-1]))
-            
-        return log_prob
-
-    # new proposing-state method with HamiltonianMonteCarlo
-    def propose_new_state_hamiltoniam(self, x, h, y):
-        
-
-        # define the target log prob funtion
-        def tlp(*args):
-            return self.target_log_prob2(x, args, y)
-        
-        # initialize the HMC transition kernel
-        adaptive_hmc = tfp.mcmc.SimpleStepSizeAdaptation(tfp.mcmc.HamiltonianMonteCarlo(
-            target_log_prob_fn = tlp,
-            num_leapfrog_steps = 10,
-            step_size = pow(1000, -1/4)),
-            num_adaptation_steps=int(1000 * 0.8))
-
-        # build current state
-        h_current = [h['h%i_values' % i] for i in range(len(self.fc_layers))]
-        h_current = tf.concat[h_current[0], h_current[1], axis = 1]
-        h_current = [tf.cast(h_i, dtype=tf.float32) for h_i in h_current]
-
-        # run the chain
-        num_results = 5
-        num_burnin_steps = 1000
-
-        samples = tfp.mcmc.sample_chain(
-            num_results = num_results,
-            num_burnin_steps = num_burnin_steps,
-            current_state = h_current, # may need to be reshaped
-            kernel = adaptive_hmc,
-            trace_fn = None)
-
-        samples_mean = tf.reduce_mean(samples)
-        return(samples_mean)
-
-        # main time costing step: propose_new_state & accept/reject
-        
-        # Questions: 
-        # 1. num_results? 
-        # 2. target_log_prob_wrapped? (receives current_state = [x, h, y], but only samples h)
-        # 2.5 h or h_current? (whether need to be flattened into lists according to the type of current_state)
-        # 3. new state? (sample * is_accepted, then reduce_mean?)
-        # 4.* mechanism of HMC (num_leapfrog_steps, step_size)
 
     def save_model(self, file):
         with open(file, 'wb') as f:
