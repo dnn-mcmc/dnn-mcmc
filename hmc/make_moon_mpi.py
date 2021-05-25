@@ -14,7 +14,7 @@ comm = MPI.COMM_WORLD
 size = comm.Get_size()
 rank = comm.Get_rank()
 
-ndata = 500
+ndata = 2000
 numPerRank = int(np.floor((ndata * 0.8) / size))
 
 x_train = None
@@ -43,15 +43,12 @@ model = StochasticMLP(hidden_layer_sizes = [50], n_outputs=1)
 network = [model.call(x) for x, y in train_ds]    
 kernels = [model.generate_hmc_kernel(x, y) for x, y in train_ds]
 
-#print("Rank: ", rank, "Weight: ", model.trainable_weights)
-
-
 # Burn-in
 burnin = 500
 
 for i in range(burnin):
     
-    if(i % 100 == 0): print("Step %d" % i)
+    if rank == 0 and i % 100 == 0: print("Step %d" % i)
         
     network_new = []
     kernels_new = []
@@ -72,19 +69,26 @@ for epoch in range(epochs):
     
     loss = 0.0
     acc = 0.0
-    #update_flag = False
-    #newer_model = None
     for bs, (x, y) in enumerate(train_ds):
         
         # weight updating
-        if rank == 0: # main processor receives new models from subprocessor
-            model = comm.recv(source = ?)
-
-        model.update_weights(x, network[bs], y, 0.1) 
-        if rank == 0:
-            model = comm.bcast(model, root = 0)
-        else:
-            comm.send(model, dest = 0)
+        # main processor receives new models from subprocessors and calculate the average
+        
+        weights = model.get_weights()
+        
+        weights_new = []
+        for i in range(len(weights)):
+            weight = np.array(weights[i], dtype = 'double')
+            weight_sum = np.zeros(weight.shape, dtype = 'double')
+            comm.Reduce(weight, weight_sum, op = MPI.SUM, root = 0)
+            weights_new.append(weight_sum / size)
+            
+        # broadcast weights to subprocessors and update their models
+        weights = comm.bcast(weights_new, root = 0)
+        model.set_weights(weights)
+        
+        # update the model one step 
+        model.update_weights(x, network[bs], y, 0.1)           
         
         # sampling one step
         res = [model.propose_new_state_hamiltonian(x, net, y, ker, is_update_kernel = False) \
@@ -92,9 +96,20 @@ for epoch in range(epochs):
         network = res
         loss += -1 * tf.reduce_mean(model.target_log_prob(x, network[bs], y))
     
-    loss_sum = 0.0
+    # calculate total loss
+    loss = np.array(loss, dtype = 'double')
+    loss_sum = np.array(0.0, dtype = 'double')
     comm.Reduce(loss, loss_sum, op = MPI.SUM, root = 0)
+
+    # calculate total training accuracy
     preds = [model.get_predictions(images) for images, labels in train_ds]
-    train_acc = accuracy_score(np.concatenate(preds), y_train)
-    print("Epoch %d/%d: - %.4fs/step - loss: %.4f - accuracy: %.4f" 
-          % (epoch + 1, epochs, (time.time() - start_time) / (epoch + 1), loss, train_acc))
+    acc = accuracy_score(np.concatenate(preds), y_trn)
+    acc = np.array(acc, dtype = 'double')
+    train_acc = np.array(0.0, dtype = 'double')
+    comm.Reduce(acc, train_acc, op = MPI.SUM, root = 0)
+    train_acc /= size
+
+    # output training process
+    if rank == 0:
+        print("Epoch %d/%d: - %.4fs/step - loss: %.4f - accuracy: %.4f" 
+            % (epoch + 1, epochs, (time.time() - start_time) / (epoch + 1), loss_sum, train_acc))
