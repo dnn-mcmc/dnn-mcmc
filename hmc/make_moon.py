@@ -3,6 +3,7 @@
 
 import tensorflow as tf
 import tensorflow_probability as tfp
+import tensorflow.math as tm
 import numpy as np
 import random
 import time
