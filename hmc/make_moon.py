@@ -211,7 +211,7 @@ model_bp = keras.Sequential(
 
 import time
 batch_size = 32
-epochs = 1000
+epochs = 500
 opt = tf.keras.optimizers.SGD(learning_rate=1e-3)
 st = time.time()
 model_bp.compile(loss="binary_crossentropy", optimizer=opt, metrics=["accuracy", "AUC"])
@@ -227,7 +227,7 @@ kernels = [model.generate_hmc_kernel(x, y) for x, y in train_ds]
 print('Starting CD-HMC Burn-in')
 
 # Burn-in
-burnin = 500
+burnin = 100
 step_sizes = []
 for i in range(burnin):
     
@@ -243,7 +243,7 @@ for i in range(burnin):
 print('Starting CD-HMC')
 
 # Training
-epochs = 1000
+epochs = 500
 
 start_time = time.time()
 for epoch in range(epochs):
