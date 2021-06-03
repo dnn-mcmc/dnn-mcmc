@@ -204,7 +204,7 @@ print('Starting Standard Backprop')
 model_bp = keras.Sequential(
     [
         keras.Input(shape=(2,)),
-        layers.Dense(100, activation = "sigmoid"),
+        layers.Dense(256, activation = "sigmoid"),
         layers.Dense(1, activation = "sigmoid")
     ]
 )
@@ -220,7 +220,7 @@ print(time.time() - st)
 
 print('Building CD-HMC Model')
 
-model = StochasticMLP(hidden_layer_sizes = [100], n_outputs=1)
+model = StochasticMLP(hidden_layer_sizes = [256], n_outputs=1)
 network = [model.call(x) for x, y in train_ds]
 kernels = [model.generate_hmc_kernel(x, y) for x, y in train_ds]
 
