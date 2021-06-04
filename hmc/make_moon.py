@@ -205,15 +205,15 @@ print('Starting Standard Backprop')
 model_bp = keras.Sequential(
     [
         keras.Input(shape=(2,)),
-        layers.Dense(256, activation = "sigmoid"),
+        layers.Dense(32, activation = "sigmoid"),
         layers.Dense(1, activation = "sigmoid")
     ]
 )
 
 import time
 batch_size = 32
-epochs = 500
-opt = tf.keras.optimizers.SGD(learning_rate=1e-3)
+epochs = 50
+opt = tf.keras.optimizers.SGD(learning_rate=.1)
 st = time.time()
 model_bp.compile(loss="binary_crossentropy", optimizer=opt, metrics=["accuracy", "AUC"])
 model_bp.fit(x_train, y_train, batch_size=batch_size, epochs=epochs)
@@ -221,14 +221,14 @@ print(time.time() - st)
 
 print('Building CD-HMC Model')
 
-model = StochasticMLP(hidden_layer_sizes = [256], n_outputs=1)
+model = StochasticMLP(hidden_layer_sizes = [32], n_outputs=1)
 network = [model.call(x) for x, y in train_ds]
 kernels = [model.generate_hmc_kernel(x, y) for x, y in train_ds]
 
 print('Starting CD-HMC Burn-in')
 
 # Burn-in
-burnin = 100
+burnin = 50
 step_sizes = []
 for i in range(burnin):
     
@@ -244,7 +244,7 @@ for i in range(burnin):
 print('Starting CD-HMC')
 
 # Training
-epochs = 500
+epochs = 50
 
 start_time = time.time()
 for epoch in range(epochs):
