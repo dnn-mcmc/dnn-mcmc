@@ -1,33 +1,60 @@
+#!/usr/bin/env python
+# coding: utf-8
+
 import tensorflow as tf
-import tensorflow_probability as tfp
 import tensorflow.math as tm
+import tensorflow_probability as tfp
 import numpy as np
 import time
-#import matplotlib.pyplot as plt
-
-from tensorflow import keras
-from tensorflow.keras import layers
-from tensorflow.keras import initializers
-from tensorflow.keras import Model
-from tensorflow.keras import models
-from tensorflow.keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D
-from tensorflow.keras.models import Sequential
 from sklearn.metrics import accuracy_score
 from sklearn.datasets import make_moons
 from sklearn.model_selection import train_test_split
 from stochastic_mlp import StochasticMLP
+from tensorflow.keras.layers import Flatten, Dense
+from tensorflow.keras import Model
+from tensorflow.keras import initializers
+from mpi4py import MPI
 
-# HMC 
-def convert2_zero_one(x):
-    
-    t = [tf.math.sigmoid(i) for i in x]    
-    return t
+comm = MPI.COMM_WORLD
+size = comm.Get_size()
+rank = comm.Get_rank()
 
+ndata = 500
+numPerRank = int(np.floor((ndata * 0.8) / size))
+
+x_train = None
+y_train = None
+x_test = None
+y_test = None
+
+# Make data
+if rank == 0:
+    np.random.seed(1234)
+    X, Y = make_moons(ndata, noise = 0.1)
+    x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=73)
+    y_train = y_train.reshape((-1, 1))
+    y_test = y_test.reshape((-1, 1))
+
+x_trn = np.empty((numPerRank, 2), dtype = "float64")
+y_trn = np.empty((numPerRank, 1), dtype = "int")
+comm.Scatter(x_train, x_trn, root = 0)
+comm.Scatter(y_train, y_trn, root = 0)
+
+train_ds = tf.data.Dataset.from_tensor_slices((x_trn, y_trn)).batch(32)
+
+# currently rerange function is unnecessary
 def rerange(x, r = 6.0):
     
-    out_of_range = tf.cast(tf.math.greater(tf.math.abs(x), r), tf.float32)
-    sign = tf.math.sign(x)
+    out_of_range = tf.cast(tm.greater(tm.abs(x), r), tf.float32)
+    sign = tm.sign(x)
+    
     return x * (1 - out_of_range) + sign * r * out_of_range
+
+def convert2_zero_one(x):
+    
+    t = [tm.sigmoid(i) for i in x]
+    
+    return t
 
 def cont_bern_log_norm(lam, l_lim=0.49, u_lim=0.51):
     '''
@@ -42,7 +69,6 @@ def cont_bern_log_norm(lam, l_lim=0.49, u_lim=0.51):
     log_norm = tm.log(tm.abs(2.0 * tm.atanh(1 - 2.0 * cut_lam))) - tm.log(tm.abs(1 - 2.0 * cut_lam))
     taylor = tm.log(2.0) + 4.0 / 3.0 * tm.pow(lam - 0.5, 2) + 104.0 / 45.0 * tm.pow(lam - 0.5, 4)
     return tf.where(tm.logical_or(tm.less(lam, l_lim), tm.greater(lam, u_lim)), log_norm, taylor)
-
 
 # MLP model
 class StochasticMLP(Model):
@@ -183,67 +209,36 @@ class StochasticMLP(Model):
 
         return labels
 
-# Make data
-np.random.seed(1234)
-X, Y = make_moons(1000, noise = 0.3)
-
-# Split into test and training data
-x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.25, random_state=73)
-y_train = np.reshape(y_train, (y_train.shape[0], 1))
-y_test = np.reshape(y_test, (y_test.shape[0], 1))
-
-train_ds = tf.data.Dataset.from_tensor_slices((x_train, y_train)).batch(32)
-test_ds = tf.data.Dataset.from_tensor_slices((x_test, y_test)).batch(32)
-
-
-print('Starting Standard Backprop')
-
-# Standard BP
-model_bp = keras.Sequential(
-    [
-        keras.Input(shape=(2,)),
-        layers.Dense(32, activation = "sigmoid"),
-        layers.Dense(1, activation = "sigmoid")
-    ]
-)
-
-import time
-batch_size = 32
-epochs = 50
-opt = tf.keras.optimizers.SGD(learning_rate=.1)
-st = time.time()
-model_bp.compile(loss="binary_crossentropy", optimizer=opt, metrics=["accuracy", "AUC"])
-model_bp.fit(x_train, y_train, batch_size=batch_size, epochs=epochs)
-print(time.time() - st)
-
-print('Building CD-HMC Model')
-
-model = StochasticMLP(hidden_layer_sizes = [32], n_outputs=1)
-network = [model.call(x) for x, y in train_ds]
+tf.random.set_seed(1234)
+model = StochasticMLP(hidden_layer_sizes = [50], n_outputs=1)
+network = [model.call(x) for x, y in train_ds]    
 kernels = [model.generate_hmc_kernel(x, y) for x, y in train_ds]
 
-print('Starting CD-HMC Burn-in')
+print("Rank: ", rank, "Weight: ", model.output_layer.get_weight())
 
+'''
 # Burn-in
-burnin = 50
-step_sizes = []
+burnin = 500
+
 for i in range(burnin):
     
-    if(i % 100 == 0):
-        print("Step %d" % i)
+    if(i % 100 == 0): print("Step %d" % i)
+        
+    network_new = []
+    kernels_new = []
     
-    network, kernels = zip(*[
-        model.propose_new_state_hamiltonian(x, net, y, ker)
-        for (x, y), net, ker in zip(train_ds, network, kernels)
-    ])
-
-
-print('Starting CD-HMC')
-
+    res = [model.propose_new_state_hamiltonian(x, net, y, ker) \
+               for (x, y), net, ker in zip(train_ds, network, kernels)]
+    
+    network_new, kernels_new = zip(*res)
+         
+    network = network_new
+    kernels = kernels_new
+    
 # Training
-epochs = 50
-
+epochs = 500
 start_time = time.time()
+
 for epoch in range(epochs):
     
     loss = 0.0
@@ -261,4 +256,4 @@ for epoch in range(epochs):
     train_acc = accuracy_score(np.concatenate(preds), y_train)
     print("Epoch %d/%d: - %.4fs/step - loss: %.4f - accuracy: %.4f" 
           % (epoch + 1, epochs, (time.time() - start_time) / (epoch + 1), loss, train_acc))
-
+'''
