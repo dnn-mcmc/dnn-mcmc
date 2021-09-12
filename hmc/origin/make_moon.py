@@ -15,7 +15,6 @@ from tensorflow.keras.models import Sequential
 from sklearn.metrics import accuracy_score
 from sklearn.datasets import make_moons
 from sklearn.model_selection import train_test_split
-from stochastic_mlp import StochasticMLP
 
 # HMC 
 def convert2_zero_one(x):
@@ -185,7 +184,7 @@ class StochasticMLP(Model):
 
 # Make data
 np.random.seed(1234)
-X, Y = make_moons(1000, noise = 0.3)
+X, Y = make_moons(250, noise = 0.3)
 
 # Split into test and training data
 x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.25, random_state=73)
@@ -207,13 +206,12 @@ model_bp = keras.Sequential(
     ]
 )
 
-import time
 batch_size = 32
 epochs = 50
 opt = tf.keras.optimizers.SGD(learning_rate=.1)
 st = time.time()
 model_bp.compile(loss="binary_crossentropy", optimizer=opt, metrics=["accuracy", "AUC"])
-model_bp.fit(x_train, y_train, batch_size=batch_size, epochs=epochs)
+history = model_bp.fit(x_train, y_train, batch_size=batch_size, epochs=epochs)
 print(time.time() - st)
 
 print('Building CD-HMC Model')
@@ -225,11 +223,10 @@ kernels = [model.generate_hmc_kernel(x, y) for x, y in train_ds]
 print('Starting CD-HMC Burn-in')
 
 # Burn-in
-burnin = 50
-step_sizes = []
+burnin = 100
 for i in range(burnin):
     
-    if(i % 100 == 0):
+    if(i % 20 == 0):
         print("Step %d" % i)
     
     network, kernels = zip(*[
@@ -242,8 +239,10 @@ print('Starting CD-HMC')
 
 # Training
 epochs = 50
-
+loss_ls = []
+acc_ls = []
 start_time = time.time()
+
 for epoch in range(epochs):
     
     loss = 0.0
@@ -259,6 +258,23 @@ for epoch in range(epochs):
     
     preds = [model.get_predictions(images) for images, labels in train_ds]
     train_acc = accuracy_score(np.concatenate(preds), y_train)
+    loss_ls.append(loss)
+    acc_ls.append(train_acc)
+    
     print("Epoch %d/%d: - %.4fs/step - loss: %.4f - accuracy: %.4f" 
           % (epoch + 1, epochs, (time.time() - start_time) / (epoch + 1), loss, train_acc))
 
+print("Time of HMC: ", time.time() - start.time())
+
+# print plot and save data
+fig, ax = plt.subplots()
+
+ax.plot(history.history['accuracy'], label = 'SGD')
+ax.plot(list(range(epochs)), acc_ls, label = 'HMC')
+ax.legend()
+fig.savefig('make_moon_acc_250.png')
+plt.close(fig)
+
+with open('make_moon_loss_250.npy', 'wb') as f:
+    np.save(f, np.array(history.history['loss']))
+    np.save(f, np.array(loss_ls))
