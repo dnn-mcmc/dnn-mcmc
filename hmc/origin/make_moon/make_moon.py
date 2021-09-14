@@ -184,7 +184,7 @@ class StochasticMLP(Model):
 
 # Make data
 np.random.seed(1234)
-X, Y = make_moons(4000, noise = 0.3)
+X, Y = make_moons(250, noise = 0.3)
 
 # Split into test and training data
 x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.25, random_state=73)
@@ -201,7 +201,8 @@ print('Starting Standard Backprop')
 model_bp = keras.Sequential(
     [
         keras.Input(shape=(2,)),
-        layers.Dense(32, activation = "sigmoid"),
+        layers.Dense(16, activation = "sigmoid"),
+        layers.Dense(16, activation = "sigmoid")
         layers.Dense(1, activation = "sigmoid")
     ]
 )
@@ -216,7 +217,7 @@ print(time.time() - st)
 
 print('Building CD-HMC Model')
 
-model = StochasticMLP(hidden_layer_sizes = [32], n_outputs=1)
+model = StochasticMLP(hidden_layer_sizes = [16, 16], n_outputs=1)
 network = [model.call(x) for x, y in train_ds]
 kernels = [model.generate_hmc_kernel(x, y) for x, y in train_ds]
 

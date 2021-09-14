@@ -1,0 +1,7 @@
+Dataset: make_moon(250/1000/4000, noise = 0.3)
+Training: 75%
+Model: Input(2) - Dense(32) - Output(1)
+Optimizer: SGD(lr = 0.1)
+batch_size = 32
+training_epoch (SGD/HMC) = 100
+burn-in (HMC) = 100
