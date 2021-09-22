@@ -184,7 +184,7 @@ class StochasticMLP(Model):
 
 # Make data
 np.random.seed(1234)
-X, Y = make_moons(250, noise = 0.3)
+X, Y = make_moons(1000, noise = 0.3)
 
 # Split into test and training data
 x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.25, random_state=73)
@@ -208,7 +208,7 @@ model_bp = keras.Sequential(
 )
 
 batch_size = 32
-epochs = 100
+epochs = 200
 opt = tf.keras.optimizers.SGD(learning_rate=.1)
 st = time.time()
 model_bp.compile(loss="binary_crossentropy", optimizer=opt, metrics=["accuracy", "AUC"])
@@ -224,22 +224,42 @@ kernels = [model.generate_hmc_kernel(x, y) for x, y in train_ds]
 print('Starting CD-HMC Burn-in')
 
 # Burn-in
-burnin = 100
-for i in range(burnin):
-    
-    if(i % 20 == 0):
-        print("Step %d" % i)
-    
-    network, kernels = zip(*[
-        model.propose_new_state_hamiltonian(x, net, y, ker)
-        for (x, y), net, ker in zip(train_ds, network, kernels)
-    ])
+burnin = 0
+tlp = []
+early_stop = False
 
+while not early_stop:
+    
+    burnin += 1
+    if(burnin % 100 == 0): print("Step %d" % burnin)
+        
+    network_new = []
+    kernels_new = []
+    loss = 0.0
+    
+    #res = [model.propose_new_state_hamiltonian(x, net, y, ker) 
+    #           for (x, y), net, ker in zip(train_ds, network, kernels)]
+    res = []
+    for (x, y), net, ker in zip(train_ds, network, kernels):
+        
+        res.append(model.propose_new_state_hamiltonian(x, net, y, ker))
+        loss += -1 * tf.reduce_mean(model.target_log_prob(x, net, y))
+    
+    network_new, kernels_new = zip(*res)
+         
+    network = network_new
+    kernels = kernels_new
+    tlp.append(loss)
+    
+    if (burnin >= 320 and min(tlp) == min(tlp[:(burnin - 20)])) or burnin >= 600:
+        early_stop = True
+
+print("Burnin steps: %d" % burnin)
 
 print('Starting CD-HMC')
 
 # Training
-epochs = 100
+epochs = 200
 loss_ls = []
 acc_ls = []
 start_time = time.time()
@@ -273,9 +293,10 @@ fig, ax = plt.subplots()
 ax.plot(history.history['accuracy'], label = 'SGD')
 ax.plot(list(range(epochs)), acc_ls, label = 'HMC')
 ax.legend()
-fig.savefig('make_moon_acc_4000.png')
+fig.savefig('results_3/make_moon_acc_1000.png')
 plt.close(fig)
 
-with open('make_moon_loss_4000.npy', 'wb') as f:
+with open('results_3/make_moon_loss_1000.npy', 'wb') as f:
+    np.save(f, np.array(tlp))
     np.save(f, np.array(history.history['loss']))
     np.save(f, np.array(loss_ls))
