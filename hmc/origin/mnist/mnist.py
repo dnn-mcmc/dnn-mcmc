@@ -13,7 +13,7 @@ from tensorflow.keras import models
 from tensorflow.keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D
 from tensorflow.keras.models import Sequential
 from sklearn.metrics import accuracy_score
-from sklearn.datasets import mnist
+from tensorflow.keras.datasets import mnist
 from sklearn.model_selection import train_test_split
 
 # HMC 
@@ -49,8 +49,9 @@ class StochasticMLP(Model):
     def __init__(self, hidden_layer_sizes=[100], n_outputs=10):
         super(StochasticMLP, self).__init__()
         self.hidden_layer_sizes = hidden_layer_sizes
-        self.fc_layers = [Dense(layer_size) for layer_size in hidden_layer_sizes]
-        self.output_layer = Dense(n_outputs)
+        initializer = initializers.RandomUniform(minval=-0.0001, maxval=0.0001, seed=None)
+        self.fc_layers = [Dense(layer_size, kernel_initializer = initializer) for layer_size in hidden_layer_sizes]
+        self.output_layer = Dense(n_outputs, kernel_initializer = initializer)
     
     def call(self, x):
         
@@ -159,9 +160,9 @@ class StochasticMLP(Model):
         else:
             return h_new
     
-    def update_weights(self, x, h, y, lr = 0.1):
+    def update_weights(self, x, h, y, lr):
         
-        optimizer = tf.keras.optimizers.SGD(learning_rate = lr)
+        optimizer = tf.keras.optimizers.Adam(learning_rate = lr)
         with tf.GradientTape() as tape:
             loss = -1 * tf.reduce_mean(self.target_log_prob(x, h, y))
         
@@ -187,15 +188,15 @@ class StochasticMLP(Model):
 
 # Select binary data
 label_sub = [0,1]
-x_train_sub = [x for x, y in zip(x_train, y_train) if y in label_sub]
-y_train_sub = [y for y in y_train if y in label_sub]
-x_test_sub = [x for x, y in zip(x_test, y_test) if y in label_sub]
-y_test_sub = [y for y in y_test if y in label_sub]
+x_train_sub = [x.reshape(-1) for x, y in zip(x_train, y_train) if y in label_sub]
+y_train_sub = [y.reshape(-1) for y in y_train if y in label_sub]
+x_test_sub = [x.reshape(-1) for x, y in zip(x_test, y_test) if y in label_sub]
+y_test_sub = [y.reshape(-1) for y in y_test if y in label_sub]
 
 print('There are', len(x_train_sub), 'training images.')
 print('There are', len(x_test_sub), 'test images.')
 
-train_ds = tf.data.Dataset.from_tensor_slices((x_select, y_select)).shuffle(10000).batch(32)
+train_ds = tf.data.Dataset.from_tensor_slices((x_train_sub, y_train_sub)).shuffle(10000).batch(32)
 test_ds = tf.data.Dataset.from_tensor_slices((x_test_sub, y_test_sub)).batch(32)
 
 print('Starting Standard Backprop')
@@ -203,7 +204,7 @@ print('Starting Standard Backprop')
 # Standard BP
 model_bp = keras.Sequential(
     [
-        keras.Input(shape=(2,)),
+        keras.Input(shape=(784,)),
         layers.Dense(32, activation = "sigmoid"),
         layers.Dense(1, activation = "sigmoid")
     ]
@@ -211,10 +212,10 @@ model_bp = keras.Sequential(
 
 batch_size = 32
 epochs = 200
-opt = tf.keras.optimizers.SGD(learning_rate=.1)
+opt = tf.keras.optimizers.Adam(learning_rate=.0001)
 st = time.time()
 model_bp.compile(loss="binary_crossentropy", optimizer=opt, metrics=["accuracy", "AUC"])
-history = model_bp.fit(x_train, y_train, batch_size=batch_size, epochs=epochs)
+history = model_bp.fit(train_ds, batch_size=batch_size, epochs=epochs)
 print(time.time() - st)
 
 print('Building CD-HMC Model')
@@ -226,12 +227,11 @@ kernels = [model.generate_hmc_kernel(x, y) for x, y in train_ds]
 print('Starting CD-HMC Burn-in')
 
 # Burn-in
-burnin = 400
-early_stop = False
+burnin = 200
 
 for i in range(burnin):
 
-    if(i % 100 == 0): print("Step %d" % i)
+    if(i % 50 == 0): print("Step %d" % i)
     
     network, kernels = zip(*[model.propose_new_state_hamiltonian(x, net, y, ker) 
                              for (x, y), net, ker in zip(train_ds, network, kernels)])
@@ -251,7 +251,7 @@ for epoch in range(epochs):
     for bs, (x, y) in enumerate(train_ds):
         
         # only one mini-batch
-        model.update_weights(x, network[bs], y, 0.1)
+        model.update_weights(x, network[bs], y, 0.0001)
         res = [model.propose_new_state_hamiltonian(x, net, y, ker, is_update_kernel = False) \
                    for (x, y), net, ker in zip(train_ds, network, kernels)]
         network = res
@@ -277,7 +277,6 @@ fig.savefig('results_1/mnist_acc_ns32.png')
 plt.close(fig)
 
 with open('results_1/mnist_loss_ns32.npy', 'wb') as f:
-    np.save(f, np.array(tlp))
     np.save(f, np.array(history.history['loss']))
     np.save(f, np.array(loss_ls))
 

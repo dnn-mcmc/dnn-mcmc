@@ -1,0 +1,250 @@
+nohup: ignoring input
+2021-10-13 17:02:41.871661: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcudart.so.10.1
+2021-10-13 17:02:43.702894: I tensorflow/compiler/jit/xla_cpu_device.cc:41] Not creating XLA devices, tf_xla_enable_xla_devices not set
+2021-10-13 17:02:43.704540: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcuda.so.1
+2021-10-13 17:02:43.738448: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:941] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2021-10-13 17:02:43.739665: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1720] Found device 0 with properties: 
+pciBusID: 0000:13:00.0 name: TITAN Xp computeCapability: 6.1
+coreClock: 1.582GHz coreCount: 30 deviceMemorySize: 11.91GiB deviceMemoryBandwidth: 510.07GiB/s
+2021-10-13 17:02:43.739701: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcudart.so.10.1
+2021-10-13 17:02:43.742802: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcublas.so.10
+2021-10-13 17:02:43.742862: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcublasLt.so.10
+2021-10-13 17:02:43.745739: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcufft.so.10
+2021-10-13 17:02:43.746160: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcurand.so.10
+2021-10-13 17:02:43.749379: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcusolver.so.10
+2021-10-13 17:02:43.750984: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcusparse.so.10
+2021-10-13 17:02:43.757464: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcudnn.so.7
+2021-10-13 17:02:43.757618: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:941] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2021-10-13 17:02:43.758832: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:941] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2021-10-13 17:02:43.759953: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1862] Adding visible gpu devices: 0
+2021-10-13 17:02:43.760589: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  SSE4.1 SSE4.2 AVX AVX2 FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2021-10-13 17:02:43.764124: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:941] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2021-10-13 17:02:43.765266: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1720] Found device 0 with properties: 
+pciBusID: 0000:13:00.0 name: TITAN Xp computeCapability: 6.1
+coreClock: 1.582GHz coreCount: 30 deviceMemorySize: 11.91GiB deviceMemoryBandwidth: 510.07GiB/s
+2021-10-13 17:02:43.765298: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcudart.so.10.1
+2021-10-13 17:02:43.765330: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcublas.so.10
+2021-10-13 17:02:43.765356: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcublasLt.so.10
+2021-10-13 17:02:43.765378: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcufft.so.10
+2021-10-13 17:02:43.765401: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcurand.so.10
+2021-10-13 17:02:43.765435: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcusolver.so.10
+2021-10-13 17:02:43.765459: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcusparse.so.10
+2021-10-13 17:02:43.765482: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcudnn.so.7
+2021-10-13 17:02:43.765591: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:941] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2021-10-13 17:02:43.766786: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:941] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2021-10-13 17:02:43.767886: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1862] Adding visible gpu devices: 0
+2021-10-13 17:02:43.767931: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcudart.so.10.1
+2021-10-13 17:02:44.365154: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1261] Device interconnect StreamExecutor with strength 1 edge matrix:
+2021-10-13 17:02:44.365213: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1267]      0 
+2021-10-13 17:02:44.365266: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1280] 0:   N 
+2021-10-13 17:02:44.365544: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:941] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2021-10-13 17:02:44.366227: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:941] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2021-10-13 17:02:44.366833: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:941] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2021-10-13 17:02:44.367399: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1406] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 11209 MB memory) -> physical GPU (device: 0, name: TITAN Xp, pci bus id: 0000:13:00.0, compute capability: 6.1)
+2021-10-13 17:02:44.368122: I tensorflow/compiler/jit/xla_gpu_device.cc:99] Not creating XLA devices, tf_xla_enable_xla_devices not set
+2021-10-13 17:02:44.476737: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcublas.so.10
+Start Gibbs Burn-in
+Step 0
+Step 50
+Epoch 1/200: - 94.3041s/step - loss: 533.0161 - accuracy: 0.6550
+Epoch 2/200: - 94.8092s/step - loss: 476.3895 - accuracy: 0.7512
+Epoch 3/200: - 95.1953s/step - loss: 437.4547 - accuracy: 0.7775
+Epoch 4/200: - 94.5000s/step - loss: 403.4649 - accuracy: 0.6613
+Epoch 5/200: - 94.4183s/step - loss: 383.0294 - accuracy: 0.4975
+Epoch 6/200: - 93.1535s/step - loss: 363.2359 - accuracy: 0.6538
+Epoch 7/200: - 92.2705s/step - loss: 340.4681 - accuracy: 0.4975
+Epoch 8/200: - 91.7306s/step - loss: 316.4040 - accuracy: 0.5025
+Epoch 9/200: - 91.3234s/step - loss: 287.1947 - accuracy: 0.5363
+Epoch 10/200: - 90.9805s/step - loss: 257.6449 - accuracy: 0.5537
+Epoch 11/200: - 90.7012s/step - loss: 244.6687 - accuracy: 0.4975
+Epoch 12/200: - 90.3271s/step - loss: 216.4508 - accuracy: 0.5387
+Epoch 13/200: - 90.2114s/step - loss: 197.6254 - accuracy: 0.4975
+Epoch 14/200: - 90.1317s/step - loss: 205.9113 - accuracy: 0.5400
+Epoch 15/200: - 89.9315s/step - loss: 205.2907 - accuracy: 0.4975
+Epoch 16/200: - 89.8881s/step - loss: 177.1083 - accuracy: 0.5138
+Epoch 17/200: - 89.7722s/step - loss: 157.2519 - accuracy: 0.4975
+Epoch 18/200: - 89.6842s/step - loss: 140.8881 - accuracy: 0.5138
+Epoch 19/200: - 89.5209s/step - loss: 130.2176 - accuracy: 0.4975
+Epoch 20/200: - 89.3969s/step - loss: 116.9976 - accuracy: 0.5025
+Epoch 21/200: - 89.4482s/step - loss: 99.7386 - accuracy: 0.4975
+Epoch 22/200: - 89.4471s/step - loss: 98.3324 - accuracy: 0.5038
+Epoch 23/200: - 89.5970s/step - loss: 82.9498 - accuracy: 0.4975
+Epoch 24/200: - 89.5289s/step - loss: 68.2919 - accuracy: 0.5025
+Epoch 25/200: - 89.4628s/step - loss: 60.8547 - accuracy: 0.4975
+Epoch 26/200: - 89.3312s/step - loss: 59.1711 - accuracy: 0.5025
+Epoch 27/200: - 89.2166s/step - loss: 59.0287 - accuracy: 0.4975
+Epoch 28/200: - 89.2200s/step - loss: 60.9834 - accuracy: 0.5025
+Epoch 29/200: - 89.2132s/step - loss: 58.7682 - accuracy: 0.4975
+Epoch 30/200: - 89.3442s/step - loss: 53.8891 - accuracy: 0.5025
+Epoch 31/200: - 89.2893s/step - loss: 45.0087 - accuracy: 0.4975
+Epoch 32/200: - 89.3135s/step - loss: 45.8807 - accuracy: 0.5025
+Epoch 33/200: - 89.2757s/step - loss: 38.6774 - accuracy: 0.4975
+Epoch 34/200: - 89.2523s/step - loss: 37.9903 - accuracy: 0.5025
+Epoch 35/200: - 89.2299s/step - loss: 37.6976 - accuracy: 0.4975
+Epoch 36/200: - 89.2411s/step - loss: 36.2226 - accuracy: 0.5025
+Epoch 37/200: - 89.2132s/step - loss: 37.2164 - accuracy: 0.4975
+Epoch 38/200: - 89.2793s/step - loss: 36.3074 - accuracy: 0.5025
+Epoch 39/200: - 89.2143s/step - loss: 36.9143 - accuracy: 0.4975
+Epoch 40/200: - 89.1966s/step - loss: 36.1323 - accuracy: 0.5025
+Epoch 41/200: - 89.2188s/step - loss: 37.0462 - accuracy: 0.4975
+Epoch 42/200: - 89.1573s/step - loss: 36.3319 - accuracy: 0.5025
+Epoch 43/200: - 89.1048s/step - loss: 36.0022 - accuracy: 0.4975
+Epoch 44/200: - 89.0472s/step - loss: 35.0857 - accuracy: 0.5025
+Epoch 45/200: - 89.0888s/step - loss: 35.9493 - accuracy: 0.4975
+Epoch 46/200: - 89.0457s/step - loss: 36.4166 - accuracy: 0.5025
+Epoch 47/200: - 89.0129s/step - loss: 36.4072 - accuracy: 0.4975
+Epoch 48/200: - 88.9786s/step - loss: 36.6587 - accuracy: 0.5025
+Epoch 49/200: - 88.9819s/step - loss: 35.6255 - accuracy: 0.4975
+Epoch 50/200: - 88.9751s/step - loss: 36.8164 - accuracy: 0.5025
+Epoch 51/200: - 88.9219s/step - loss: 34.7748 - accuracy: 0.4975
+Epoch 52/200: - 88.8778s/step - loss: 33.4576 - accuracy: 0.5025
+Epoch 53/200: - 88.8696s/step - loss: 32.6977 - accuracy: 0.4975
+Epoch 54/200: - 88.8657s/step - loss: 33.8656 - accuracy: 0.5025
+Epoch 55/200: - 88.8121s/step - loss: 32.3036 - accuracy: 0.4975
+Epoch 56/200: - 88.8880s/step - loss: 32.1667 - accuracy: 0.5025
+Epoch 57/200: - 88.8383s/step - loss: 32.4891 - accuracy: 0.4975
+Epoch 58/200: - 88.8365s/step - loss: 32.3950 - accuracy: 0.5025
+Epoch 59/200: - 88.8270s/step - loss: 30.6120 - accuracy: 0.4975
+Epoch 60/200: - 88.8097s/step - loss: 31.4553 - accuracy: 0.5025
+Epoch 61/200: - 88.7790s/step - loss: 29.3575 - accuracy: 0.4975
+Epoch 62/200: - 88.7625s/step - loss: 30.1261 - accuracy: 0.5025
+Epoch 63/200: - 88.7436s/step - loss: 31.8293 - accuracy: 0.4975
+Epoch 64/200: - 88.7371s/step - loss: 31.6327 - accuracy: 0.5025
+Epoch 65/200: - 88.7569s/step - loss: 30.7341 - accuracy: 0.4975
+Epoch 66/200: - 88.7274s/step - loss: 31.7174 - accuracy: 0.5025
+Epoch 67/200: - 88.7081s/step - loss: 29.8603 - accuracy: 0.4975
+Epoch 68/200: - 88.6717s/step - loss: 30.1522 - accuracy: 0.5025
+Epoch 69/200: - 88.7222s/step - loss: 29.8894 - accuracy: 0.4975
+Epoch 70/200: - 88.7599s/step - loss: 30.4266 - accuracy: 0.5025
+Epoch 71/200: - 88.7377s/step - loss: 29.9219 - accuracy: 0.4975
+Epoch 72/200: - 88.6838s/step - loss: 29.7903 - accuracy: 0.5025
+Epoch 73/200: - 88.6698s/step - loss: 28.8159 - accuracy: 0.4975
+Epoch 74/200: - 88.6719s/step - loss: 29.2818 - accuracy: 0.5025
+Epoch 75/200: - 88.6771s/step - loss: 29.0841 - accuracy: 0.4975
+Epoch 76/200: - 88.6961s/step - loss: 28.9412 - accuracy: 0.5025
+Epoch 77/200: - 88.6908s/step - loss: 29.4881 - accuracy: 0.4975
+Epoch 78/200: - 88.6618s/step - loss: 29.0351 - accuracy: 0.5025
+Epoch 79/200: - 88.6317s/step - loss: 29.3080 - accuracy: 0.4975
+Epoch 80/200: - 88.6933s/step - loss: 30.0635 - accuracy: 0.5025
+Epoch 81/200: - 88.6764s/step - loss: 29.4035 - accuracy: 0.4975
+Epoch 82/200: - 88.6813s/step - loss: 30.8416 - accuracy: 0.5025
+Epoch 83/200: - 88.6413s/step - loss: 30.6659 - accuracy: 0.4975
+Epoch 84/200: - 88.6354s/step - loss: 29.8436 - accuracy: 0.5025
+Epoch 85/200: - 88.6185s/step - loss: 31.2099 - accuracy: 0.4975
+Epoch 86/200: - 88.5931s/step - loss: 29.7363 - accuracy: 0.5025
+Epoch 87/200: - 88.5958s/step - loss: 29.5897 - accuracy: 0.4975
+Epoch 88/200: - 88.5951s/step - loss: 30.1663 - accuracy: 0.5025
+Epoch 89/200: - 88.6147s/step - loss: 28.4435 - accuracy: 0.4975
+Epoch 90/200: - 88.6062s/step - loss: 29.2236 - accuracy: 0.5025
+Epoch 91/200: - 88.6002s/step - loss: 28.3636 - accuracy: 0.4975
+Epoch 92/200: - 88.6200s/step - loss: 28.7821 - accuracy: 0.5025
+Epoch 93/200: - 88.6149s/step - loss: 28.0225 - accuracy: 0.4975
+Epoch 94/200: - 88.5878s/step - loss: 28.9602 - accuracy: 0.5025
+Epoch 95/200: - 88.5612s/step - loss: 28.6903 - accuracy: 0.4975
+Epoch 96/200: - 88.5524s/step - loss: 28.3718 - accuracy: 0.5025
+Epoch 97/200: - 88.5629s/step - loss: 29.2095 - accuracy: 0.4975
+Epoch 98/200: - 88.5583s/step - loss: 29.4242 - accuracy: 0.5025
+Epoch 99/200: - 88.5557s/step - loss: 28.4099 - accuracy: 0.4975
+Epoch 100/200: - 88.5673s/step - loss: 29.0033 - accuracy: 0.5025
+Epoch 101/200: - 88.5781s/step - loss: 27.6610 - accuracy: 0.4975
+Epoch 102/200: - 88.5690s/step - loss: 28.2781 - accuracy: 0.5025
+Epoch 103/200: - 88.5501s/step - loss: 27.7073 - accuracy: 0.4975
+Epoch 104/200: - 88.5452s/step - loss: 28.2239 - accuracy: 0.5025
+Epoch 105/200: - 88.5444s/step - loss: 28.0031 - accuracy: 0.4975
+Epoch 106/200: - 88.5470s/step - loss: 29.2526 - accuracy: 0.5025
+Epoch 107/200: - 88.5339s/step - loss: 29.0121 - accuracy: 0.4975
+Epoch 108/200: - 88.5424s/step - loss: 29.0951 - accuracy: 0.5025
+Epoch 109/200: - 88.5298s/step - loss: 28.4131 - accuracy: 0.4975
+Epoch 110/200: - 88.5051s/step - loss: 28.7366 - accuracy: 0.5025
+Epoch 111/200: - 88.4931s/step - loss: 28.5877 - accuracy: 0.4975
+Epoch 112/200: - 88.4943s/step - loss: 28.7710 - accuracy: 0.5025
+Epoch 113/200: - 88.4867s/step - loss: 27.7170 - accuracy: 0.4975
+Epoch 114/200: - 88.5258s/step - loss: 27.9885 - accuracy: 0.5025
+Epoch 115/200: - 88.5204s/step - loss: 28.5682 - accuracy: 0.4975
+Epoch 116/200: - 88.4932s/step - loss: 28.1457 - accuracy: 0.5025
+Epoch 117/200: - 88.4829s/step - loss: 27.9245 - accuracy: 0.4975
+Epoch 118/200: - 88.4592s/step - loss: 28.3771 - accuracy: 0.5025
+Epoch 119/200: - 88.4372s/step - loss: 27.8788 - accuracy: 0.4975
+Epoch 120/200: - 88.4570s/step - loss: 28.0204 - accuracy: 0.5025
+Epoch 121/200: - 88.4397s/step - loss: 27.3217 - accuracy: 0.4975
+Epoch 122/200: - 88.4156s/step - loss: 28.0287 - accuracy: 0.5025
+Epoch 123/200: - 88.3921s/step - loss: 27.3581 - accuracy: 0.4975
+Epoch 124/200: - 88.3872s/step - loss: 28.0441 - accuracy: 0.5025
+Epoch 125/200: - 88.3721s/step - loss: 27.8298 - accuracy: 0.4975
+Epoch 126/200: - 88.3753s/step - loss: 28.1890 - accuracy: 0.5025
+Epoch 127/200: - 88.3779s/step - loss: 27.9270 - accuracy: 0.4975
+Epoch 128/200: - 88.3979s/step - loss: 28.7953 - accuracy: 0.5025
+Epoch 129/200: - 88.4061s/step - loss: 27.2654 - accuracy: 0.4975
+Epoch 130/200: - 88.4158s/step - loss: 27.8409 - accuracy: 0.5025
+Epoch 131/200: - 88.4065s/step - loss: 27.6594 - accuracy: 0.4975
+Epoch 132/200: - 88.4937s/step - loss: 27.7505 - accuracy: 0.5025
+Epoch 133/200: - 88.5100s/step - loss: 27.8532 - accuracy: 0.4975
+Epoch 134/200: - 88.5288s/step - loss: 28.8087 - accuracy: 0.5025
+Epoch 135/200: - 88.5355s/step - loss: 26.4933 - accuracy: 0.4975
+Epoch 136/200: - 88.5243s/step - loss: 27.5979 - accuracy: 0.5025
+Epoch 137/200: - 88.5226s/step - loss: 25.6119 - accuracy: 0.4975
+Epoch 138/200: - 88.5039s/step - loss: 26.6255 - accuracy: 0.5025
+Epoch 139/200: - 88.4911s/step - loss: 25.6855 - accuracy: 0.4975
+Epoch 140/200: - 88.4898s/step - loss: 26.5349 - accuracy: 0.5025
+Epoch 141/200: - 88.4929s/step - loss: 25.2530 - accuracy: 0.4975
+Epoch 142/200: - 88.4853s/step - loss: 24.9831 - accuracy: 0.5025
+Epoch 143/200: - 88.5071s/step - loss: 24.9758 - accuracy: 0.4975
+Epoch 144/200: - 88.5590s/step - loss: 24.8307 - accuracy: 0.5025
+Epoch 145/200: - 88.5485s/step - loss: 24.6906 - accuracy: 0.4975
+Epoch 146/200: - 88.5460s/step - loss: 24.0511 - accuracy: 0.5025
+Epoch 147/200: - 88.5317s/step - loss: 23.6442 - accuracy: 0.4975
+Epoch 148/200: - 88.5236s/step - loss: 24.1817 - accuracy: 0.5025
+Epoch 149/200: - 88.5202s/step - loss: 24.2706 - accuracy: 0.4975
+Epoch 150/200: - 88.5117s/step - loss: 24.0537 - accuracy: 0.5025
+Epoch 151/200: - 88.4956s/step - loss: 23.9197 - accuracy: 0.4975
+Epoch 152/200: - 88.4970s/step - loss: 23.6651 - accuracy: 0.5025
+Epoch 153/200: - 88.4771s/step - loss: 23.8903 - accuracy: 0.4975
+Epoch 154/200: - 88.4638s/step - loss: 24.3270 - accuracy: 0.5025
+Epoch 155/200: - 88.4475s/step - loss: 23.9298 - accuracy: 0.4975
+Epoch 156/200: - 88.4536s/step - loss: 24.2548 - accuracy: 0.5025
+Epoch 157/200: - 88.4373s/step - loss: 24.2823 - accuracy: 0.4975
+Epoch 158/200: - 88.4249s/step - loss: 24.3529 - accuracy: 0.5025
+Epoch 159/200: - 88.4351s/step - loss: 23.2127 - accuracy: 0.4975
+Epoch 160/200: - 88.4345s/step - loss: 23.8350 - accuracy: 0.5025
+Epoch 161/200: - 88.4241s/step - loss: 23.4753 - accuracy: 0.4975
+Epoch 162/200: - 88.4159s/step - loss: 23.7707 - accuracy: 0.5025
+Epoch 163/200: - 88.4062s/step - loss: 23.8384 - accuracy: 0.4975
+Epoch 164/200: - 88.3983s/step - loss: 23.8627 - accuracy: 0.5025
+Epoch 165/200: - 88.3905s/step - loss: 22.8688 - accuracy: 0.4975
+Epoch 166/200: - 88.3860s/step - loss: 23.7122 - accuracy: 0.5025
+Epoch 167/200: - 88.3616s/step - loss: 23.7655 - accuracy: 0.4975
+Epoch 168/200: - 88.3575s/step - loss: 23.5477 - accuracy: 0.5025
+Epoch 169/200: - 88.3487s/step - loss: 23.4198 - accuracy: 0.4975
+Epoch 170/200: - 88.3598s/step - loss: 23.8061 - accuracy: 0.5025
+Epoch 171/200: - 88.3781s/step - loss: 23.2761 - accuracy: 0.4975
+Epoch 172/200: - 88.3703s/step - loss: 23.7481 - accuracy: 0.5025
+Epoch 173/200: - 88.3683s/step - loss: 23.1059 - accuracy: 0.4975
+Epoch 174/200: - 88.3649s/step - loss: 23.8132 - accuracy: 0.5025
+Epoch 175/200: - 88.3658s/step - loss: 23.1470 - accuracy: 0.4975
+Epoch 176/200: - 88.3542s/step - loss: 23.5911 - accuracy: 0.5025
+Epoch 177/200: - 88.3557s/step - loss: 23.3595 - accuracy: 0.4975
+Epoch 178/200: - 88.3857s/step - loss: 23.2982 - accuracy: 0.5025
+Epoch 179/200: - 88.3751s/step - loss: 22.9442 - accuracy: 0.4975
+Epoch 180/200: - 88.3669s/step - loss: 23.3569 - accuracy: 0.5025
+Epoch 181/200: - 88.3647s/step - loss: 22.9800 - accuracy: 0.4975
+Epoch 182/200: - 88.3568s/step - loss: 23.1395 - accuracy: 0.5025
+Epoch 183/200: - 88.3499s/step - loss: 23.0859 - accuracy: 0.4975
+Epoch 184/200: - 88.3445s/step - loss: 22.9151 - accuracy: 0.5025
+Epoch 185/200: - 88.3364s/step - loss: 22.7510 - accuracy: 0.4975
+Epoch 186/200: - 88.3296s/step - loss: 23.3728 - accuracy: 0.5025
+Epoch 187/200: - 88.3068s/step - loss: 23.1221 - accuracy: 0.4975
+Epoch 188/200: - 88.3193s/step - loss: 23.6185 - accuracy: 0.5025
+Epoch 189/200: - 88.3054s/step - loss: 23.4697 - accuracy: 0.4975
+Epoch 190/200: - 88.2881s/step - loss: 23.0506 - accuracy: 0.5025
+Epoch 191/200: - 88.2755s/step - loss: 23.0951 - accuracy: 0.4975
+Epoch 192/200: - 88.2770s/step - loss: 23.4139 - accuracy: 0.5025
+Epoch 193/200: - 88.2779s/step - loss: 23.3133 - accuracy: 0.4975
+Epoch 194/200: - 88.2700s/step - loss: 22.8376 - accuracy: 0.5025
+Epoch 195/200: - 88.2585s/step - loss: 22.7660 - accuracy: 0.4975
+Epoch 196/200: - 88.2608s/step - loss: 22.5927 - accuracy: 0.5025
+Epoch 197/200: - 88.2585s/step - loss: 23.2211 - accuracy: 0.4975
+Epoch 198/200: - 88.2483s/step - loss: 23.2262 - accuracy: 0.5025
+Epoch 199/200: - 88.2492s/step - loss: 23.3061 - accuracy: 0.4975
+Epoch 200/200: - 88.2424s/step - loss: 23.3149 - accuracy: 0.5025
+Time of Gibbs:  17648.475271224976

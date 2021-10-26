@@ -201,8 +201,7 @@ print('Starting Standard Backprop')
 model_bp = keras.Sequential(
     [
         keras.Input(shape=(2,)),
-        layers.Dense(16, activation = "sigmoid"),
-        layers.Dense(16, activation = "sigmoid")
+        layers.Dense(64, activation = "sigmoid"),
         layers.Dense(1, activation = "sigmoid")
     ]
 )
@@ -217,13 +216,14 @@ print(time.time() - st)
 
 print('Building CD-HMC Model')
 
-model = StochasticMLP(hidden_layer_sizes = [16, 16], n_outputs=1)
+model = StochasticMLP(hidden_layer_sizes = [64], n_outputs=1)
 network = [model.call(x) for x, y in train_ds]
 kernels = [model.generate_hmc_kernel(x, y) for x, y in train_ds]
 
 print('Starting CD-HMC Burn-in')
 
 # Burn-in
+'''
 burnin = 0
 tlp = []
 early_stop = False
@@ -243,18 +243,34 @@ while not early_stop:
     for (x, y), net, ker in zip(train_ds, network, kernels):
         
         res.append(model.propose_new_state_hamiltonian(x, net, y, ker))
-        loss += -1 * tf.reduce_mean(model.target_log_prob(x, net, y))
+        loss += -1 * tf.reduce_sum(model.target_log_prob(x, net, y))
     
     network_new, kernels_new = zip(*res)
          
     network = network_new
     kernels = kernels_new
-    tlp.append(loss)
+    tlp.append(loss / len(x_train))
     
-    if (burnin >= 320 and min(tlp) == min(tlp[:(burnin - 20)])) or burnin >= 600:
+    #if (burnin >= 400 and min(tlp) == min(tlp[:(burnin - 20)])) or burnin >= 750:
+    #    early_stop = True
+
+    if burnin >= 2000:
         early_stop = True
 
-print("Burnin steps: %d" % burnin)
+#print("Burnin steps: %d" % burnin)
+fig, ax = plt.subplots()
+ax.plot(list(range(burnin)), tlp)
+fig.savefig('results_burnin/burnin_tlp_16_16_4000.png')
+plt.close(fig)
+'''
+
+burnin = 400
+
+for i in range(burnin):
+
+    if(i % 100 == 0): print("Step %d" % i)
+    network, kernels = zip(*[model.propose_new_state_hamiltonian(x, net, y, ker)
+               for (x, y), net, ker in zip(train_ds, network, kernels)])
 
 print('Starting CD-HMC')
 
@@ -279,11 +295,11 @@ for epoch in range(epochs):
     
     preds = [model.get_predictions(images) for images, labels in train_ds]
     train_acc = accuracy_score(np.concatenate(preds), y_train)
-    loss_ls.append(loss)
+    loss_ls.append(loss / len(x_train))
     acc_ls.append(train_acc)
     
     print("Epoch %d/%d: - %.4fs/step - loss: %.4f - accuracy: %.4f" 
-          % (epoch + 1, epochs, (time.time() - start_time) / (epoch + 1), loss, train_acc))
+          % (epoch + 1, epochs, (time.time() - start_time) / (epoch + 1), loss_ls[epoch], train_acc))
 
 print("Time of HMC: ", time.time() - start_time)
 
@@ -293,10 +309,9 @@ fig, ax = plt.subplots()
 ax.plot(history.history['accuracy'], label = 'SGD')
 ax.plot(list(range(epochs)), acc_ls, label = 'HMC')
 ax.legend()
-fig.savefig('results_3/make_moon_acc_1000.png')
+fig.savefig('results_4/make_moon_acc_1000.png')
 plt.close(fig)
 
-with open('results_3/make_moon_loss_1000.npy', 'wb') as f:
-    np.save(f, np.array(tlp))
+with open('results_4/make_moon_loss_1000.npy', 'wb') as f:
     np.save(f, np.array(history.history['loss']))
     np.save(f, np.array(loss_ls))

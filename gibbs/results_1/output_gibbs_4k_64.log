@@ -1,0 +1,150 @@
+nohup: ignoring input
+2021-10-13 23:55:26.491672: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcudart.so.10.1
+2021-10-13 23:55:28.290074: I tensorflow/compiler/jit/xla_cpu_device.cc:41] Not creating XLA devices, tf_xla_enable_xla_devices not set
+2021-10-13 23:55:28.291305: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcuda.so.1
+2021-10-13 23:55:28.323155: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:941] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2021-10-13 23:55:28.324392: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1720] Found device 0 with properties: 
+pciBusID: 0000:13:00.0 name: TITAN Xp computeCapability: 6.1
+coreClock: 1.582GHz coreCount: 30 deviceMemorySize: 11.91GiB deviceMemoryBandwidth: 510.07GiB/s
+2021-10-13 23:55:28.324428: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcudart.so.10.1
+2021-10-13 23:55:28.327416: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcublas.so.10
+2021-10-13 23:55:28.327475: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcublasLt.so.10
+2021-10-13 23:55:28.330304: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcufft.so.10
+2021-10-13 23:55:28.330716: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcurand.so.10
+2021-10-13 23:55:28.333853: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcusolver.so.10
+2021-10-13 23:55:28.335425: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcusparse.so.10
+2021-10-13 23:55:28.341762: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcudnn.so.7
+2021-10-13 23:55:28.341916: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:941] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2021-10-13 23:55:28.343118: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:941] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2021-10-13 23:55:28.344230: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1862] Adding visible gpu devices: 0
+2021-10-13 23:55:28.344727: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  SSE4.1 SSE4.2 AVX AVX2 FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2021-10-13 23:55:28.348383: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:941] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2021-10-13 23:55:28.349572: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1720] Found device 0 with properties: 
+pciBusID: 0000:13:00.0 name: TITAN Xp computeCapability: 6.1
+coreClock: 1.582GHz coreCount: 30 deviceMemorySize: 11.91GiB deviceMemoryBandwidth: 510.07GiB/s
+2021-10-13 23:55:28.349605: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcudart.so.10.1
+2021-10-13 23:55:28.349639: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcublas.so.10
+2021-10-13 23:55:28.349666: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcublasLt.so.10
+2021-10-13 23:55:28.349689: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcufft.so.10
+2021-10-13 23:55:28.349712: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcurand.so.10
+2021-10-13 23:55:28.349746: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcusolver.so.10
+2021-10-13 23:55:28.349771: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcusparse.so.10
+2021-10-13 23:55:28.349795: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcudnn.so.7
+2021-10-13 23:55:28.349905: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:941] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2021-10-13 23:55:28.351068: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:941] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2021-10-13 23:55:28.352172: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1862] Adding visible gpu devices: 0
+2021-10-13 23:55:28.352229: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcudart.so.10.1
+2021-10-13 23:55:29.044204: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1261] Device interconnect StreamExecutor with strength 1 edge matrix:
+2021-10-13 23:55:29.044255: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1267]      0 
+2021-10-13 23:55:29.044269: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1280] 0:   N 
+2021-10-13 23:55:29.044530: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:941] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2021-10-13 23:55:29.045249: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:941] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2021-10-13 23:55:29.045872: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:941] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2021-10-13 23:55:29.046437: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1406] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 11209 MB memory) -> physical GPU (device: 0, name: TITAN Xp, pci bus id: 0000:13:00.0, compute capability: 6.1)
+2021-10-13 23:55:29.046805: I tensorflow/compiler/jit/xla_gpu_device.cc:99] Not creating XLA devices, tf_xla_enable_xla_devices not set
+2021-10-13 23:55:29.149160: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcublas.so.10
+Start Gibbs Burn-in
+Step 0
+Step 50
+Epoch 1/100: - 354.2001s/step - loss: 1028.0905 - accuracy: 0.4988
+Epoch 2/100: - 355.2422s/step - loss: 928.6014 - accuracy: 0.4988
+Epoch 3/100: - 353.1757s/step - loss: 799.6968 - accuracy: 0.4988
+Epoch 4/100: - 353.9829s/step - loss: 746.7673 - accuracy: 0.5019
+Epoch 5/100: - 353.4709s/step - loss: 632.6993 - accuracy: 0.4988
+Epoch 6/100: - 354.0704s/step - loss: 555.9275 - accuracy: 0.4988
+Epoch 7/100: - 354.9800s/step - loss: 496.7224 - accuracy: 0.4988
+Epoch 8/100: - 355.4042s/step - loss: 448.0106 - accuracy: 0.4988
+Epoch 9/100: - 355.6468s/step - loss: 420.4177 - accuracy: 0.4988
+Epoch 10/100: - 355.1198s/step - loss: 386.4497 - accuracy: 0.4988
+Epoch 11/100: - 355.5752s/step - loss: 333.6310 - accuracy: 0.4988
+Epoch 12/100: - 355.8964s/step - loss: 310.5828 - accuracy: 0.4988
+Epoch 13/100: - 356.5543s/step - loss: 286.9964 - accuracy: 0.4988
+Epoch 14/100: - 356.6408s/step - loss: 255.0579 - accuracy: 0.4988
+Epoch 15/100: - 356.5311s/step - loss: 207.9166 - accuracy: 0.5047
+Epoch 16/100: - 357.0934s/step - loss: 176.8715 - accuracy: 0.5012
+Epoch 17/100: - 357.0311s/step - loss: 167.7474 - accuracy: 0.5012
+Epoch 18/100: - 356.9177s/step - loss: 165.1973 - accuracy: 0.5012
+Epoch 19/100: - 356.9768s/step - loss: 156.1942 - accuracy: 0.5012
+Epoch 20/100: - 356.8526s/step - loss: 143.6907 - accuracy: 0.5012
+Epoch 21/100: - 357.0429s/step - loss: 133.1024 - accuracy: 0.5012
+Epoch 22/100: - 356.9168s/step - loss: 130.3590 - accuracy: 0.5012
+Epoch 23/100: - 357.1271s/step - loss: 122.6336 - accuracy: 0.5012
+Epoch 24/100: - 357.1041s/step - loss: 117.8280 - accuracy: 0.5012
+Epoch 25/100: - 356.9762s/step - loss: 116.7004 - accuracy: 0.5012
+Epoch 26/100: - 356.7990s/step - loss: 112.4690 - accuracy: 0.5012
+Epoch 27/100: - 357.2293s/step - loss: 109.0427 - accuracy: 0.5012
+Epoch 28/100: - 357.0742s/step - loss: 103.0497 - accuracy: 0.5012
+Epoch 29/100: - 357.1175s/step - loss: 101.8492 - accuracy: 0.5012
+Epoch 30/100: - 357.1467s/step - loss: 101.0847 - accuracy: 0.5012
+Epoch 31/100: - 357.4693s/step - loss: 100.9804 - accuracy: 0.5012
+Epoch 32/100: - 357.7147s/step - loss: 99.5169 - accuracy: 0.5012
+Epoch 33/100: - 357.6275s/step - loss: 98.5922 - accuracy: 0.5012
+Epoch 34/100: - 357.7516s/step - loss: 96.1216 - accuracy: 0.5012
+Epoch 35/100: - 357.8959s/step - loss: 91.5267 - accuracy: 0.5012
+Epoch 36/100: - 357.7327s/step - loss: 89.1167 - accuracy: 0.5012
+Epoch 37/100: - 357.7633s/step - loss: 89.6804 - accuracy: 0.5012
+Epoch 38/100: - 357.4952s/step - loss: 82.5760 - accuracy: 0.5012
+Epoch 39/100: - 357.3788s/step - loss: 82.9941 - accuracy: 0.5012
+Epoch 40/100: - 357.5531s/step - loss: 79.9173 - accuracy: 0.5012
+Epoch 41/100: - 357.7171s/step - loss: 80.2702 - accuracy: 0.5012
+Epoch 42/100: - 357.6966s/step - loss: 80.0229 - accuracy: 0.5012
+Epoch 43/100: - 357.6450s/step - loss: 80.0863 - accuracy: 0.5012
+Epoch 44/100: - 357.6470s/step - loss: 78.3947 - accuracy: 0.5012
+Epoch 45/100: - 357.5857s/step - loss: 75.3372 - accuracy: 0.5012
+Epoch 46/100: - 357.7304s/step - loss: 74.5954 - accuracy: 0.5012
+Epoch 47/100: - 357.7976s/step - loss: 75.6968 - accuracy: 0.5012
+Epoch 48/100: - 357.6473s/step - loss: 75.1940 - accuracy: 0.5012
+Epoch 49/100: - 357.6610s/step - loss: 75.3804 - accuracy: 0.5012
+Epoch 50/100: - 357.7161s/step - loss: 73.0515 - accuracy: 0.5012
+Epoch 51/100: - 357.6174s/step - loss: 71.1159 - accuracy: 0.5012
+Epoch 52/100: - 357.7036s/step - loss: 69.8458 - accuracy: 0.5012
+Epoch 53/100: - 357.6761s/step - loss: 71.3029 - accuracy: 0.5012
+Epoch 54/100: - 357.7458s/step - loss: 74.5460 - accuracy: 0.5012
+Epoch 55/100: - 357.5956s/step - loss: 69.9208 - accuracy: 0.5012
+Epoch 56/100: - 357.5277s/step - loss: 68.3205 - accuracy: 0.5012
+Epoch 57/100: - 357.5662s/step - loss: 70.7525 - accuracy: 0.5012
+Epoch 58/100: - 357.4395s/step - loss: 69.1418 - accuracy: 0.5012
+Epoch 59/100: - 357.3877s/step - loss: 68.1004 - accuracy: 0.5012
+Epoch 60/100: - 357.3441s/step - loss: 67.5326 - accuracy: 0.5012
+Epoch 61/100: - 357.2656s/step - loss: 67.2747 - accuracy: 0.5012
+Epoch 62/100: - 357.2531s/step - loss: 67.1854 - accuracy: 0.5012
+Epoch 63/100: - 357.2706s/step - loss: 67.7436 - accuracy: 0.5012
+Epoch 64/100: - 357.1535s/step - loss: 67.0510 - accuracy: 0.5012
+Epoch 65/100: - 357.1592s/step - loss: 65.7919 - accuracy: 0.5012
+Epoch 66/100: - 357.0250s/step - loss: 65.5294 - accuracy: 0.5012
+Epoch 67/100: - 356.9399s/step - loss: 64.3887 - accuracy: 0.5012
+Epoch 68/100: - 356.9353s/step - loss: 64.5708 - accuracy: 0.5012
+Epoch 69/100: - 356.8697s/step - loss: 63.6447 - accuracy: 0.5012
+Epoch 70/100: - 356.7794s/step - loss: 66.7262 - accuracy: 0.5012
+Epoch 71/100: - 356.7308s/step - loss: 63.0966 - accuracy: 0.5012
+Epoch 72/100: - 356.6917s/step - loss: 63.6575 - accuracy: 0.5012
+Epoch 73/100: - 356.6246s/step - loss: 64.2437 - accuracy: 0.5012
+Epoch 74/100: - 356.6126s/step - loss: 62.5274 - accuracy: 0.5012
+Epoch 75/100: - 356.6721s/step - loss: 62.0541 - accuracy: 0.5012
+Epoch 76/100: - 356.6336s/step - loss: 63.4011 - accuracy: 0.5012
+Epoch 77/100: - 356.7406s/step - loss: 65.4375 - accuracy: 0.5012
+Epoch 78/100: - 356.7991s/step - loss: 65.6872 - accuracy: 0.5012
+Epoch 79/100: - 356.6921s/step - loss: 62.7102 - accuracy: 0.5012
+Epoch 80/100: - 356.6070s/step - loss: 63.7588 - accuracy: 0.5012
+Epoch 81/100: - 356.6375s/step - loss: 64.1280 - accuracy: 0.5012
+Epoch 82/100: - 356.5883s/step - loss: 64.5425 - accuracy: 0.5012
+Epoch 83/100: - 356.6036s/step - loss: 63.0131 - accuracy: 0.5012
+Epoch 84/100: - 356.6049s/step - loss: 64.8669 - accuracy: 0.5012
+Epoch 85/100: - 356.6679s/step - loss: 64.6965 - accuracy: 0.5012
+Epoch 86/100: - 356.5885s/step - loss: 63.1156 - accuracy: 0.5012
+Epoch 87/100: - 356.5659s/step - loss: 61.3329 - accuracy: 0.5012
+Epoch 88/100: - 356.5548s/step - loss: 60.4703 - accuracy: 0.5012
+Epoch 89/100: - 356.5552s/step - loss: 58.4480 - accuracy: 0.5012
+Epoch 90/100: - 356.5077s/step - loss: 60.3189 - accuracy: 0.5012
+Epoch 91/100: - 356.4749s/step - loss: 58.1346 - accuracy: 0.5012
+Epoch 92/100: - 356.5050s/step - loss: 57.9104 - accuracy: 0.5012
+Epoch 93/100: - 356.4766s/step - loss: 54.7804 - accuracy: 0.5012
+Epoch 94/100: - 356.4872s/step - loss: 54.1469 - accuracy: 0.5012
+Epoch 95/100: - 356.5205s/step - loss: 53.9755 - accuracy: 0.5012
+Epoch 96/100: - 356.5114s/step - loss: 54.0867 - accuracy: 0.5012
+Epoch 97/100: - 356.6725s/step - loss: 54.1130 - accuracy: 0.5012
+Epoch 98/100: - 356.6793s/step - loss: 55.4135 - accuracy: 0.5012
+Epoch 99/100: - 356.7349s/step - loss: 53.8666 - accuracy: 0.5012
+Epoch 100/100: - 356.7154s/step - loss: 53.7605 - accuracy: 0.5012
+Time of Gibbs:  35671.53767180443
