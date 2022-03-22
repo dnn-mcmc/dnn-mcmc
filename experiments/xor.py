@@ -2,19 +2,15 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 import tensorflow.math as tm
 import numpy as np
+import random
 import time
 import matplotlib.pyplot as plt
-
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras import initializers
 from tensorflow.keras import Model
-from tensorflow.keras import models
 from tensorflow.keras.layers import Dense
-from tensorflow.keras.models import Sequential
 from sklearn.metrics import accuracy_score
-from sklearn.datasets import make_moons
-from sklearn.model_selection import train_test_split
 
 def convert2_zero_one(x):
     
@@ -42,7 +38,7 @@ class StochasticMLP(Model):
         self.hidden_layer_sizes = hidden_layer_sizes
         self.fc_layers = [Dense(layer_size) for layer_size in hidden_layer_sizes]
         self.output_layer = Dense(n_outputs)
-        self.optimizer = tf.keras.optimizers.Adam(learning_rate = lr)
+        self.optimizer = tf.keras.optimizers.SGD(learning_rate = lr)
         
     def call(self, x):
         
@@ -128,10 +124,10 @@ class StochasticMLP(Model):
                 
                 #print(next_logits_if_node_0, next_logits_if_node_1)
                 
-                logprob_children_if_node_0 = tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(
+                logprob_children_if_node_0 = -1 * tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(
                     labels=tf.cast(nv, dtype = tf.float32), logits=next_logits_if_node_0), axis = -1)
                 
-                logprob_children_if_node_1 = tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(
+                logprob_children_if_node_1 = -1 * tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(
                     labels=tf.cast(nv, dtype = tf.float32), logits=next_logits_if_node_1), axis = -1)
                 
                 # calculate prob for node (i, j)
@@ -164,7 +160,7 @@ class StochasticMLP(Model):
             target_log_prob_fn = lambda v: self.target_log_prob(x, v, y, is_hmc = True),
             num_leapfrog_steps = 2,
             step_size = step_size),
-            num_adaptation_steps=int(100 * 0.8))
+            num_adaptation_steps = int(1000 * 0.8))
         
         return adaptive_hmc
     
@@ -217,7 +213,6 @@ class StochasticMLP(Model):
         
         logits = self.output_layer(x)
         probs = tm.sigmoid(logits)
-        #print(probs)
         labels = tf.cast(tm.greater(probs, 0.5), tf.int32)
 
         return labels
@@ -233,8 +228,8 @@ class StochasticMLP(Model):
         loss = tf.nn.sigmoid_cross_entropy_with_logits(labels = tf.cast(y, tf.float32), logits = logits)
         
         return tf.reduce_sum(loss, axis = -1)
-
-def standard_backprop(size, dat_train, dat_val, epochs):
+    
+def standard_backprop(size, dat, epochs):
     '''
     Standard Backpropogation training
     '''
@@ -249,29 +244,26 @@ def standard_backprop(size, dat_train, dat_val, epochs):
             layers.Dense(1, activation = "sigmoid")
         ]
     )   
-    opt = tf.keras.optimizers.Adam(learning_rate = 0.01)
+    opt = tf.keras.optimizers.SGD(learning_rate=0.01)
     st = time.time()
-    model.compile(loss = "binary_crossentropy", optimizer = opt, metrics = ["accuracy"])
-    history = model.fit(dat_train, batch_size = batch_size, epochs = epochs, validation_data = dat_val)
+    model.compile(loss="binary_crossentropy", optimizer=opt, metrics=["accuracy"])
+    history = model.fit(dat, batch_size=batch_size, epochs=epochs)
     train_time = time.time() - st
     
     return train_time, history
 
-def hmc(size, dat_train, dat_val, epochs, burnin = 500):
+def hmc(size, dat, epochs, burnin = 500):
     '''
     HMC training
     '''
-    # Setting
-    # Get train labels and val labels
-    target_train = np.concatenate([target for data, target in dat_train.as_numpy_iterator()])
-    target_val = np.concatenate([target for data, target in dat_val.as_numpy_iterator()])
+    
+    targets = np.concatenate([target for data, target in dat.as_numpy_iterator()])
     
     print("Start HMC")
-    model = StochasticMLP(hidden_layer_sizes = [size], n_outputs = 1, lr = 0.01)
-    network = [model.call(data) for data, target in dat_train]
-    kernels = [model.generate_hmc_kernel(data, target) for data, target in dat_train]  
+    model = StochasticMLP(hidden_layer_sizes = [size], n_outputs=1, lr = 0.01)
+    network = [model.call(data) for data, target in dat]
+    kernels = [model.generate_hmc_kernel(data, target) for data, target in dat]
     
-    # Burnin
     print("Start HMC Burning")
     burnin_losses = []
     for i in range(burnin):
@@ -280,73 +272,55 @@ def hmc(size, dat_train, dat_val, epochs, burnin = 500):
 
         res = []
         burnin_loss = 0.0
-        for bs, (data, target) in enumerate(dat_train):
+        for bs, (data, target) in enumerate(dat):
             res.append(model.propose_new_state_hamiltonian(data, network[bs], target, kernels[bs]))
             burnin_loss += -1 * tf.reduce_sum(model.target_log_prob(data, network[bs], target))
     
         network, kernels = zip(*res)
         burnin_losses.append(burnin_loss / (bs + 1))
+        
     
-    # Training
     print("Start HMC Training")
-    train_losses = []
-    train_accs = []
-    val_losses = []
-    val_accs = []
+    
+    losses = []
+    accs = []
     start_time = time.time()
     
     for epoch in range(epochs):
         
-        # train
-        for bs, (data, target) in enumerate(dat_train):
+        for bs, (data, target) in enumerate(dat):
         
             model.update_weights(data, network[bs], target)
             network = [model.propose_new_state_hamiltonian(x, net, y, ker, is_update_kernel = False) \
-                       for (x, y), net, ker in zip(dat_train, network, kernels)]
+                       for (x, y), net, ker in zip(dat, network, kernels)]
             
-        train_loss = 0.0
-        for data, target in dat_train:
-            train_loss += tf.reduce_mean(model.get_loss(data, target))
-        train_loss /= (bs + 1)
-        train_losses.append(train_loss)       
+        loss = 0.0
+        for data, target in dat:
+            loss += tf.reduce_mean(model.get_loss(data, target))
+        loss /= (bs + 1)
+        losses.append(loss)       
         
-        train_preds = [model.get_predictions(data) for data, target in dat_train]
-        train_acc = accuracy_score(np.concatenate(train_preds), target_train)
-        train_accs.append(train_acc)        
-        
-        # validate
-        
-        val_loss = 0.0
-        for bs, (data, target) in enumerate(dat_val):
-            val_loss += tf.reduce_mean(model.get_loss(data, target))
-        val_loss /= (bs + 1)
-        val_losses.append(val_loss)  
-        
-        val_preds = [model.get_predictions(data) for data, target in dat_val]
-        val_acc = accuracy_score(np.concatenate(val_preds), target_val)
-        val_accs.append(val_acc)
-        
-        print("Epoch %d/%d: - %.4fs/step - train_loss: %.4f - train_acc: %.4f - val_loss: %.4f - val_acc: %.4f" 
-            % (epoch + 1, epochs, (time.time() - start_time) / (epoch + 1), train_loss, train_acc, val_loss, val_acc))
+        preds = [model.get_predictions(data) for data, target in dat]
+        acc = accuracy_score(np.concatenate(preds), targets)
+        accs.append(acc)
+    
+        print("Epoch %d/%d: - %.4fs/step - loss: %.4f - accuracy: %.4f" 
+            % (epoch + 1, epochs, (time.time() - start_time) / (epoch + 1), loss, acc))
 
     train_time = time.time() - start_time
-    return burnin_losses, train_time, {"train_acc": train_accs, "train_loss": train_losses,
-                             "val_acc": val_accs, "val_loss": val_losses}
+    return burnin_losses, train_time, {"acc": accs, "loss": losses}
 
-def gibbs(size, dat_train, dat_val, epochs, burnin = 500):
+def gibbs(size, dat, epochs, burnin = 500):
     '''
     Gibbs Training
     '''
-    # Setting
-    # Get train labels and val labels
-    target_train = np.concatenate([target for data, target in dat_train.as_numpy_iterator()])
-    target_val = np.concatenate([target for data, target in dat_val.as_numpy_iterator()])
+    
+    targets = np.concatenate([target for data, target in dat.as_numpy_iterator()])
     
     print("Start Gibbs")
-    model = StochasticMLP(hidden_layer_sizes = [size], n_outputs = 1, lr = 0.01)
-    network = [model.call(data) for data, target in dat_train]
-    
-    # Burnin
+    model = StochasticMLP(hidden_layer_sizes = [size], n_outputs=1, lr = 0.01)
+    network = [model.call(data) for data, target in dat]
+
     print("Start Gibbs Burning")    
     burnin_losses = []
     for i in range(burnin):
@@ -355,7 +329,7 @@ def gibbs(size, dat_train, dat_val, epochs, burnin = 500):
 
         res = []
         burnin_loss = 0.0
-        for bs, (data, target) in enumerate(dat_train):
+        for bs, (data, target) in enumerate(dat):
             res.append(model.gibbs_new_state(data, network[bs], target))
             burnin_loss += -1 * tf.reduce_sum(model.target_log_prob(data, network[bs], target, is_gibbs = True))
             
@@ -363,117 +337,134 @@ def gibbs(size, dat_train, dat_val, epochs, burnin = 500):
         burnin_losses.append(burnin_loss / (bs + 1))
     
     # Training
-    train_losses = []
-    train_accs = []
-    val_losses = []
-    val_accs = []
+    losses = []
+    accs = []
     start_time = time.time()
     
     for epoch in range(epochs):
         
         # train
-        for bs, (data, target) in enumerate(dat_train):
+        for bs, (data, target) in enumerate(dat):
         
             model.update_weights(data, network[bs], target, is_gibbs = True)
-            network = [model.gibbs_new_state(x, net, y) for (x, y), net in zip(dat_train, network)]
+            network = [model.gibbs_new_state(x, net, y) for (x, y), net in zip(dat, network)]
             
-        train_loss = 0.0
-        for data, target in dat_train:
-            train_loss += tf.reduce_mean(model.get_loss(data, target))
-        train_loss /= (bs + 1)
-        train_losses.append(train_loss)       
+        loss = 0.0
+        for data, target in dat:
+            loss += tf.reduce_mean(model.get_loss(data, target))
+        loss /= (bs + 1)
+        losses.append(loss)       
         
-        train_preds = [model.get_predictions(data) for data, target in dat_train]
-        train_acc = accuracy_score(np.concatenate(train_preds), target_train)
-        train_accs.append(train_acc)        
-        
-        # validate
-        
-        val_loss = 0.0
-        for bs, (data, target) in enumerate(dat_val):
-            val_loss += tf.reduce_mean(model.get_loss(data, target))
-        val_loss /= (bs + 1)
-        val_losses.append(val_loss)  
-        
-        val_preds = [model.get_predictions(data) for data, target in dat_val]
-        val_acc = accuracy_score(np.concatenate(val_preds), target_val)
-        val_accs.append(val_acc)
-        
-        print("Epoch %d/%d: - %.4fs/step - train_loss: %.4f - train_acc: %.4f - val_loss: %.4f - val_acc: %.4f" 
-            % (epoch + 1, epochs, (time.time() - start_time) / (epoch + 1), train_loss, train_acc, val_loss, val_acc))
+        preds = [model.get_predictions(data) for data, target in dat]
+        acc = accuracy_score(np.concatenate(preds), targets)
+        accs.append(acc)
+    
+        print("Epoch %d/%d: - %.4fs/step - loss: %.4f - accuracy: %.4f" 
+              % (epoch + 1, epochs, (time.time() - start_time) / (epoch + 1), loss, acc))
 
     train_time = time.time() - start_time
-    return burnin_losses, train_time, {"train_acc": train_accs, "train_loss": train_losses,
-                             "val_acc": val_accs, "val_loss": val_losses}
+    return burnin_losses, train_time, {"acc": accs, "loss": losses}
 
+x_train = np.array([[0, 0],
+           [0, 1],
+           [1, 0],
+           [1, 1]])
+y_train = np.array([[0],
+           [1],
+           [1],
+           [0]])
+train_ds = tf.data.Dataset.from_tensor_slices((x_train, y_train)).batch(4)
 
-# Make dataset
-np.random.seed(1234)
-X, Y = make_moons(1000, noise = 0.3)
+N = 10
+epochs = 1000
+burnin = 1000
+size = 32
+res_bp, res_hmc, res_gibbs = [], [], []
 
-# Split into test and training data
-x_train, x_val, y_train, y_val = train_test_split(X, Y, test_size = 0.2, random_state=73)
-y_train = y_train.reshape(-1, 1)
-y_val = y_val.reshape(-1, 1)
-
-train_ds = tf.data.Dataset.from_tensor_slices((x_train, y_train)).batch(32)
-val_ds = tf.data.Dataset.from_tensor_slices((x_val, y_val)).batch(32)
-
-model_size = [32]
-for size in model_size:
+for i in range(N):
     
-    epochs = 400
-    burnin = 500
-    time_bp, history_bp = standard_backprop(size, train_ds, val_ds, epochs)
-    burnin_loss_hmc, time_hmc, history_hmc = hmc(size, train_ds, val_ds, epochs, burnin)
-    burnin_loss_gibbs, time_gibbs, history_gibbs = gibbs(size, train_ds, val_ds, epochs, burnin)
+    print("---------------------------------------")
+    print(f"Running {i}")
+    
+    
+    time_bp, history_bp = standard_backprop(size, train_ds, epochs)
+    burnin_loss_hmc, time_hmc, history_hmc = hmc(size, train_ds, epochs, burnin)
+    burnin_loss_gibbs, time_gibbs, history_gibbs = gibbs(size, train_ds, epochs, burnin)
+    
+    hist_bp = {"acc": history_bp.history['accuracy'], "loss": history_bp.history['loss']}
+    rbp = {'time': time_bp, 'history': hist_bp}
+    rhmc = {'time': time_hmc, 'burnin': burnin_loss_hmc, 'history': history_hmc}
+    rgibbs = {'time': time_gibbs, 'burnin': burnin_loss_gibbs, 'history': history_gibbs}
+    
+    res_bp.append(rbp)
+    res_hmc.append(rhmc)
+    res_gibbs.append(rgibbs)
+
+res_all = [res_bp, res_hmc, res_gibbs]
+
+# calculate average curve for each method
+def cal_avg(res):
+    
+    metrics = ['acc', 'loss']
+    avg = {}
+    for metric in metrics:
+        arr_metric = np.zeros((N, epochs))
+        for i in range(N):
+            arr_metric[i] = np.array(res[i]['history'][metric])
+        avg_metric = np.mean(arr_metric, axis = 0)
+        avg[metric] = avg_metric
+        
+    return avg
+
+avg_bp = cal_avg(res_bp)
+avg_hmc = cal_avg(res_hmc)
+avg_gibbs = cal_avg(res_gibbs)
+avg_all = [avg_bp, avg_hmc, avg_gibbs]
+
+time_bp, time_hmc, time_gibbs = [], [], []
+for i in range(N):
+    time_bp.append(res_bp[i]['time'])
+    time_hmc.append(res_hmc[i]['time'])
+    time_gibbs.append(res_gibbs[i]['time'])
+    
+with open('data_xor.npy', 'wb') as f:
+    np.save(f, np.array(res_all))
+    np.save(f, np.array(avg_all))
+    np.save(f, np.array(time_bp))
+    np.save(f, np.array(time_hmc))
+    np.save(f, np.array(time_gibbs))
+    
+# plot all the running times for each method
+def plot_all(res, method, metric):
+    
+    plt.style.use('seaborn')
+    nrow = 4
+    ncol = 3
+    
+    fig, ax = plt.subplots(nrow, ncol, sharex = True)
+    fig.suptitle(method + "_" + metric)
+    for i in range(nrow):
+        for j in range(ncol):
+            if i * ncol + j < N:
+                ax[i, j].plot(res[i * ncol + j]['history'][metric])
+                ax[i, j].set_title(f"Run {i * ncol + j}")
+    plt.savefig(method + "_" + metric + '.pdf')
+    plt.close()
+    
+methods = ['bp', 'hmc', 'gibbs']
+metrics = ['acc', 'loss']
+for i, method in enumerate(methods):
+    for metric in metrics:
+        plot_all(res_all[i], method, metric)
 
 plt.style.use('seaborn')
-plt.plot(history_bp.history['accuracy'], label = 'BP')
-plt.plot(list(range(epochs)), history_hmc['train_acc'], label = 'HMC')
-plt.plot(list(range(epochs)), history_gibbs['train_acc'], label = 'Gibbs')
-plt.title("Training Accuracy")
-plt.xlabel("Epochs")
-plt.ylabel("Accuracy(%)")
-plt.legend()
-plt.savefig('makemoon_train_acc_plot.pdf')
-plt.close()
-
-plt.plot(history_bp.history['val_accuracy'], label = 'BP')
-plt.plot(list(range(epochs)), history_hmc['val_acc'], label = 'HMC')
-plt.plot(list(range(epochs)), history_gibbs['val_acc'], label = 'Gibbs')
-plt.title("Validation Accuracy")
-plt.xlabel("Epochs")
-plt.ylabel("Accuracy(%)")
-plt.legend()
-plt.savefig('makemoon_val_acc_plot.pdf')
-plt.close()
-
-plt.plot(history_bp.history['loss'], label = 'BP')
-plt.plot(list(range(epochs)), history_hmc['train_loss'], label = 'HMC')
-plt.plot(list(range(epochs)), history_gibbs['train_loss'], label = 'Gibbs')
-plt.title("Training Loss")
-plt.xlabel("Epochs")
-plt.ylabel("Loss")
-plt.legend()
-plt.savefig('makemoon_train_loss_plot.pdf')
-plt.close()
-
-plt.plot(history_bp.history['val_loss'], label = 'BP')
-plt.plot(list(range(epochs)), history_hmc['val_loss'], label = 'HMC')
-plt.plot(list(range(epochs)), history_gibbs['val_loss'], label = 'Gibbs')
-plt.title("Validation Loss")
-plt.xlabel("Epochs")
-plt.ylabel("Loss")
-plt.legend()
-plt.savefig('makemoon_val_loss_plot.pdf')
-plt.close()
-
-plt.plot(list(range(burnin)), burnin_loss_hmc, label = 'HMC')
-plt.plot(list(range(burnin)), burnin_loss_gibbs, label = 'Gibbs')
-plt.title("Burnin Loss")
-plt.xlabel("Epochs")
-plt.ylabel("Loss")
-plt.legend()
-plt.savefig('makemoon_burnin_plot.pdf')
-plt.close()
+for metric in metrics:
+    for i, method in enumerate(methods):
+        plt.plot(avg_all[i][metric], label = method)
+    plt.title(metric)
+    plt.xlabel("epochs")
+    plt.ylabel(metric)
+    plt.legend()
+    plt.savefig("average_" + metric + '.pdf')
+    plt.close()
+    

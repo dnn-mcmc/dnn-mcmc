@@ -1,0 +1,7 @@
+Setting:
+
+data = make_moon(1000)
+epoch = 500
+burnin = 500
+size = 32
+running time = 1
