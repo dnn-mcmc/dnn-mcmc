@@ -1,0 +1,34 @@
+Time
+linear for epochs, nodes; square for number of the batches
+
+XOR: 5k epoch
+
+32:
+bp: 2s
+hmc: ~65s
+gibbs: ~240s
+
+128:
+
+MAKE_MOON(1k): 400 epochs
+
+32: 0.6 days/run
+
+longer epochs (800/1k/1200) for bp&hmc: loss? Running
+
+128: 2 days/run
+bp: 27s
+hmc: ~3h
+gibbs: ~45h
+
+To do -- MNIST(binary, 12k, we choose n*1k): 
+
+time: n^2 corresponding to MAKE_MOON(1k)
+
+32: 2k
+
+bp: 2s/epoch
+hmc: ~80s/epoch
+gibbs: ~380s/epoch
+
+record the last sample of network (hmc&gibbs)

@@ -1,0 +1,6 @@
+results_7:
+
+make_moon(1k)
+opt: SGD(lr = 0.01)
+network: 128
+running: 1

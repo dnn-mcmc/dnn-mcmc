@@ -1,0 +1,5 @@
+random weight
+node = 32
+lr = SGD(0.01)
+burnin = 1000
+train = 1000

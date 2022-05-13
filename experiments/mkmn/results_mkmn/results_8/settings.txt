@@ -1,0 +1,4 @@
+BP&HMC loss
+32 nodes
+1k2 epochs
+SGD(0.01)
