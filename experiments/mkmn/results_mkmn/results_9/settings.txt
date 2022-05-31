@@ -1,0 +1,3 @@
+mkmn(1k, noise=0.3)
+32 nodes
+500 burnin, 400 epochs
